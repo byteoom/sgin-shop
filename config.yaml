@@ -1,0 +1,31 @@
+ServerPort: "8081"
+LogConfig:
+  Level: "info"
+  Format: "console"
+  File: "app.log"
+  MaxSize: 10
+  MaxAge: 7
+  Compress: true
+  Filename: "app.log"
+  ResponseSize: 1000
+  ShowConsole: true
+MySQL:
+  Host: "127.0.0.1"
+  Port: 3306
+  Username: "root"
+  Password: "root123"
+  Database: "sgin2"
+  ShowSQL: true
+
+MailConfig:
+  Host: "smtp.qiye.aliyun.com"
+  Port: 465
+  Username: "lewis@biggerforum.org"
+  Password: ""
+  RegisterTile: "AI云助手邮件验证码"
+
+NoRouterFoward: "https://www.baidu.com"
+ApiPrefix: "/api"
+
+Upload:
+  Dir: "public"
