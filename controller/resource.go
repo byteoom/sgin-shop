@@ -52,22 +52,18 @@ func (c *ResourceController) GetResourceList(ctx *app.Context) {
 // @Router /api/v1/resource/create [post]
 func (c *ResourceController) CreateResource(ctx *app.Context) {
 
-	parentUuid := ctx.PostForm("parent_uuid")
+	targetPath := ctx.PostForm("path")
 
-	targetPath := "/"
-	if parentUuid != "" {
+	parentUuid := ""
+
+	if targetPath != "" {
 		// 先获取目标文件夹信息
-		parentResource, err := c.ResourceService.GetResourceByUUID(ctx, parentUuid)
+		parentResource, err := c.ResourceService.GetResourceFolderByPath(ctx, targetPath)
 		if err != nil {
 			ctx.JSONError(http.StatusInternalServerError, err.Error())
 			return
 		}
-		if parentResource.Type != model.ResourceTypeFolder {
-			ctx.JSONError(http.StatusBadRequest, "目标资源不是文件夹")
-			return
-		}
-
-		targetPath = parentResource.Path
+		parentUuid = parentResource.Uuid
 	}
 
 	// Handle file uploads
@@ -225,10 +221,19 @@ func (c *ResourceController) DeleteResource(ctx *app.Context) {
 		}
 	}
 
-	err = os.Remove(ctx.Config.PkgFileDir + resource.Address)
-	if err != nil {
+	// 先获取资源是否存在
+	fileInfo, err := os.Stat(ctx.Config.Upload.Dir + resource.Address)
+	if err != nil && !os.IsNotExist(err) {
+
 		ctx.JSONError(http.StatusInternalServerError, err.Error())
 		return
+	}
+	if err == nil && fileInfo != nil && fileInfo.Name() != "" {
+		err = os.Remove(ctx.Config.Upload.Dir + resource.Address)
+		if err != nil {
+			ctx.JSONError(http.StatusInternalServerError, err.Error())
+			return
+		}
 	}
 
 	err = c.ResourceService.DeleteResource(ctx, param.Uuid)
@@ -268,31 +273,27 @@ func (c *ResourceController) CreateFolder(ctx *app.Context) {
 	}
 
 	resource := &model.Resource{
-		Uuid:       uuid.New().String(),
-		Name:       param.Name,
-		ParentUuid: param.ParentUuid,
-		Type:       model.ResourceTypeFolder,
-		Path:       "/" + param.Name,
-		CreatedAt:  time.Now().Format("2006-01-02 15:04:05"),
-		UpdatedAt:  time.Now().Format("2006-01-02 15:04:05"),
+		Uuid:      uuid.New().String(),
+		Name:      param.Name,
+		Type:      model.ResourceTypeFolder,
+		Path:      "/",
+		CreatedAt: time.Now().Format("2006-01-02 15:04:05"),
+		UpdatedAt: time.Now().Format("2006-01-02 15:04:05"),
 	}
 
-	if param.ParentUuid != "" {
+	if param.Path != "" {
 		// 先获取目标文件夹信息
-		parentResource, err := c.ResourceService.GetResourceByUUID(ctx, param.ParentUuid)
+		parentResource, err := c.ResourceService.GetResourceFolderByPath(ctx, param.Path)
 		if err != nil {
 			ctx.JSONError(http.StatusInternalServerError, err.Error())
 			return
 		}
-		if parentResource.Type != model.ResourceTypeFolder {
-			ctx.JSONError(http.StatusBadRequest, "目标资源不是文件夹")
-			return
-		}
+		resource.ParentUuid = parentResource.Uuid
 
-		resource.Path = parentResource.Path + "/" + resource.Name
+		resource.Path = parentResource.Address
 
 	}
-	resource.Address = resource.Path
+	resource.Address = resource.Path + "/" + resource.Name
 	err := c.ResourceService.CreateFolder(ctx, resource)
 	if err != nil {
 		ctx.JSONError(http.StatusInternalServerError, err.Error())

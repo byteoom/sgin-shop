@@ -39,7 +39,7 @@ func (s *ResourceService) CreateFolder(ctx *app.Context, param *model.Resource) 
 
 	// 根据path获取目录
 	var oldResource model.Resource
-	err := ctx.DB.Where("path = ?", param.Path).First(&oldResource).Error
+	err := ctx.DB.Where("path = ? and address = ?", param.Path, param.Address).First(&oldResource).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		ctx.Logger.Error("Failed to get resource by path", err)
 		return errors.New("failed to get resource by path")
@@ -81,6 +81,16 @@ func (s *ResourceService) GetResourceByUUID(ctx *app.Context, uuid string) (*mod
 	return resource, nil
 }
 
+// GetResourceByPath 根据path获取文件夹资源
+func (s *ResourceService) GetResourceFolderByPath(ctx *app.Context, path string) (*model.Resource, error) {
+	resource := &model.Resource{}
+	err := ctx.DB.Where("address = ? and type = ?", path, model.ResourceTypeFolder).First(resource).Error
+	if err != nil {
+		return nil, err
+	}
+	return resource, nil
+}
+
 // UpdateResource 更新资源
 func (s *ResourceService) UpdateResource(ctx *app.Context, resource *model.Resource) error {
 	resource.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
@@ -109,7 +119,7 @@ func (s *ResourceService) DeleteResource(ctx *app.Context, uuid string) error {
 // 根据uuid获取子资源数量
 func (s *ResourceService) GetChildResourceCountByUUID(ctx *app.Context, uuid string) (int64, error) {
 	var count int64
-	err := ctx.DB.Where("parent_uuid = ?", uuid).Count(&count).Error
+	err := ctx.DB.Model(&model.Resource{}).Where("parent_uuid = ?", uuid).Count(&count).Error
 	if err != nil {
 		ctx.Logger.Error("Failed to get child resource by UUID", err)
 		return 0, errors.New("failed to get child resource by UUID")
@@ -233,8 +243,16 @@ func (s *ResourceService) GetResourceList(ctx *app.Context, params *model.ReqRes
 		db = db.Where("name LIKE ?", "%"+params.Name+"%")
 	}
 
+	if params.Path != "" {
+		db = db.Where("path = ?", params.Path)
+	}
+
 	if params.ParentUuid != "" {
 		db = db.Where("parent_uuid = ?", params.ParentUuid)
+	}
+
+	if params.MimeType != "" {
+		db = db.Where("mime_type LIKE ?", params.MimeType+"%")
 	}
 
 	err := db.Count(&total).Error

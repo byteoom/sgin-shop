@@ -39,7 +39,7 @@ type Resource struct {
 type ReqResourceCreateFolder struct {
 	Name        string `json:"name" form:"name"`
 	Description string `json:"description" form:"description"`
-	ParentUuid  string `json:"parent_uuid" form:"parent_uuid"`
+	Path        string `json:"path" form:"path"`
 }
 
 // 移动资源
@@ -50,8 +50,10 @@ type ReqResourceMove struct {
 
 type ReqResourceQueryParam struct {
 	// 资源名称
+	Path       string `json:"path" form:"path"` // 资源路径
 	Name       string `json:"name" form:"name"`
 	ParentUuid string `json:"parent_uuid" form:"parent_uuid"` // 父级资源
+	MimeType   string `json:"mime_type" form:"mime_type"`     // 文件类型
 	Pagination
 }
 
