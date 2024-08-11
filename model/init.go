@@ -35,6 +35,7 @@ func MigrateDbTable(db *gorm.DB) {
 		&ProductVariantsOption{},
 		&ProductVariantsOptionValue{},
 		&ProductItem{},
+		&Resource{},
 	)
 
 	// 创建默认用户

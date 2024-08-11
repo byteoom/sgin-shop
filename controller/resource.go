@@ -84,6 +84,7 @@ func (c *ResourceController) CreateResource(ctx *app.Context) {
 		// Create a unique filename and save the file
 		filename := uuid.New().String() + filepath.Ext(fileHeader.Filename)
 		address := filepath.Join(targetPath, filename)
+		ctx.Logger.Info("address:", address)
 		resourceList = append(resourceList, &model.Resource{
 			Uuid:       uuid.New().String(),
 			Name:       fileHeader.Filename,
@@ -97,7 +98,11 @@ func (c *ResourceController) CreateResource(ctx *app.Context) {
 			UpdatedAt:  now,
 		})
 
-		err := ctx.SaveUploadedFile(fileHeader, filepath.Join(ctx.Config.PkgFileDir, address))
+		saveAddress := filepath.Join(ctx.Config.Upload.Dir, address)
+
+		ctx.Logger.Info("saveAddress:", saveAddress)
+
+		err := ctx.SaveUploadedFile(fileHeader, filepath.Join(ctx.Config.Upload.Dir, address))
 		if err != nil {
 			ctx.JSONError(http.StatusInternalServerError, "Cannot save file")
 			return

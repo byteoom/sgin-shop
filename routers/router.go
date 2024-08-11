@@ -30,6 +30,8 @@ func InitRouter(ctx *app.App) {
 	InitPermissionUserRouter(ctx)
 	InitMenuAPIRouter(ctx)
 	InitTeamMemberRouter(ctx)
+	InitProductCategoryRouter(ctx)
+	InitResourceRouter(ctx)
 }
 
 func InitUserRouter(ctx *app.App) {
@@ -287,6 +289,38 @@ func InitMenuAPIRouter(ctx *app.App) {
 		v1.POST("/menu_api/info_menu", menuAPIController.GetMenuAPIListByMenuUUID)
 		v1.POST("/menu_api/info_api", menuAPIController.GetMenuAPIListByAPIUUID)
 		v1.POST("/menu_api/list", menuAPIController.GetMenuAPIList)
+	}
+}
+
+func InitProductCategoryRouter(ctx *app.App) {
+	v1 := ctx.Group(ctx.Config.ApiPrefix + "/v1")
+	v1.Use(middleware.LoginCheck())
+	{
+		productCategoryController := &controller.ProductCategoryController{
+			CategoryService: &service.ProductCategoryService{},
+		}
+		v1.POST("/product_category/create", productCategoryController.CreateCategory)
+		v1.POST("/product_category/list", productCategoryController.GetCategoryList)
+		v1.POST("/product_category/update", productCategoryController.UpdateCategory)
+		v1.POST("/product_category/delete", productCategoryController.DeleteCategory)
+		v1.POST("/product_category/all", productCategoryController.GetAllCategory)
+	}
+}
+
+func InitResourceRouter(ctx *app.App) {
+	v1 := ctx.Group(ctx.Config.ApiPrefix + "/v1")
+	v1.Use(middleware.LoginCheck())
+	{
+		resourceController := &controller.ResourceController{
+			ResourceService: &service.ResourceService{},
+		}
+		v1.POST("/resource/create", resourceController.CreateResource)
+		v1.POST("/resource/list", resourceController.GetResourceList)
+		v1.POST("/resource/update", resourceController.UpdateResource)
+		v1.POST("/resource/delete", resourceController.DeleteResource)
+		v1.POST("/resource/create_folder", resourceController.CreateFolder)
+		v1.POST("/resource/folder_list", resourceController.GetFolderList)
+		v1.POST("/resource/move", resourceController.MoveResource)
 	}
 }
 
