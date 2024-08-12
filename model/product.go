@@ -1,7 +1,19 @@
 package model
 
+type ProductBase struct {
+	// 重量
+	Weight float64 `json:"weight" gorm:"type:decimal(10,2)"` // 重量
+	// 长度
+	Length float64 `json:"length" gorm:"type:decimal(10,2)"` // 长度
+	// 宽度
+	Width float64 `json:"width" gorm:"type:decimal(10,2)"` // 宽度
+	// 高度
+	Height float64 `json:"height" gorm:"type:decimal(10,2)"` // 高度
+}
+
 // 产品
 type Product struct {
+	ProductBase
 	ID   int64  `json:"id" gorm:"primary_key"`
 	Uuid string `json:"uuid" gorm:"type:varchar(36);unique_index"`
 	// 产品分类
@@ -10,6 +22,18 @@ type Product struct {
 	Name string `json:"name" gorm:"type:varchar(100)"`
 	// 产品描述
 	Description string `json:"description" gorm:"type:varchar(255)"`
+
+	// 产品类型
+	Type string `json:"type" gorm:"type:varchar(100)"` // 产品类型 全新、二手、虚拟产品
+
+	// 产品状态
+	Status string `json:"status" gorm:"type:varchar(100)"` // 产品状态 上架、下架、售罄
+
+	// 产品警戒库存
+	StockWarning int64 `json:"stock_warning" gorm:"type:int"` // 产品警戒库存
+
+	// 低于警戒库存是否可售
+	StockWarningSell bool `json:"stock_warning_sell" gorm:"type:bool"` // 低于警戒库存是否可售
 
 	Images string `json:"images" gorm:"comment:产品图片"`
 	// 产品视频
@@ -65,6 +89,7 @@ type ProductVariantsOptionValue struct {
 
 // 产品具体信息
 type ProductItem struct {
+	ProductBase
 	ID   int64  `json:"id" gorm:"primary_key"`
 	Uuid string `json:"uuid" gorm:"type:varchar(36);unique_index"`
 	// 产品名称
@@ -146,17 +171,4 @@ type ReqProductVariantsOptionCreate struct {
 	Unit string `json:"unit" binding:"required"`
 	// 产品变体Option描述
 	Description string `json:"description" binding:"required"`
-
-	// 产品变体Option值
-	Values []ReqProductVariantsOptionValueCreate `json:"values" binding:"-"`
-}
-
-type ReqProductVariantsOptionValueCreate struct {
-	ReqProdcutItemCommonCreate
-	// 产品变体Option值名称
-	Name string `json:"name" binding:"required"`
-	// 单位 例如: 个、件、套、箱
-	Unit string `json:"unit" binding:"required"`
-	// 产品变体Option值描述
-	Description string `json:"description" binding:"-"`
 }

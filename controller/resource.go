@@ -112,7 +112,7 @@ func (c *ResourceController) CreateResource(ctx *app.Context) {
 		return
 	}
 
-	ctx.JSONSuccess("ok")
+	ctx.JSONSuccess(resourceList)
 }
 
 // 更新资源
