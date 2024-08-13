@@ -5,12 +5,10 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"sgin/controller"
 	"sgin/model"
 	"sgin/pkg/app"
 	"sgin/pkg/config"
 	"sgin/routers"
-	"sgin/service"
 	"syscall"
 	"time"
 )
@@ -49,12 +47,6 @@ func main() {
 	serverApp.Router.Static("/public", serverApp.Config.Upload.Dir)
 
 	serverApp.NoRoute(app.NoRouterHandler())
-
-	v1 := serverApp.Group("/api/v1")
-	userController := &controller.UserController{Service: &service.UserService{}}
-	{
-		v1.POST("/users", userController.CreateUser)
-	}
 
 	srv := &http.Server{
 		Addr:    ":" + serverApp.Config.ServerPort,
