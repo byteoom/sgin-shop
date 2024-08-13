@@ -70,45 +70,6 @@ func (p *ProductService) ProductCreate(ctx *app.Context, params *model.ReqProduc
 
 						optionList = append(optionList, &productVariantOption)
 
-						if len(option.Values) > 0 {
-							valueList := make([]*model.ProductVariantsOptionValue, 0)
-							for _, value := range option.Values {
-								productVariantOptionValue := model.ProductVariantsOptionValue{
-									Uuid:                      uuid.New().String(),
-									ProductVariantsOptionUuid: productVariantOption.Uuid,
-									Name:                      value.Name,
-									Unit:                      value.Unit,
-									Description:               value.Description,
-									CreatedAt:                 now,
-									UpdatedAt:                 now,
-								}
-								valueList = append(valueList, &productVariantOptionValue)
-
-								productItem := model.ProductItem{
-									Uuid:                           uuid.New().String(),
-									ProductUuid:                    product.Uuid,
-									ProductVariantsUuid:            productVariant.Uuid,
-									ProductVariantsOptionUuid:      productVariantOption.Uuid,
-									ProductVariantsOptionValueUuid: productVariantOptionValue.Uuid,
-									Price:                          value.Price,
-									Discount:                       value.Discount,
-									DiscountPrice:                  value.DiscountPrice,
-									Stock:                          value.Stock,
-									Description:                    value.Description,
-									CreatedAt:                      now,
-									UpdatedAt:                      now,
-								}
-								productItemList = append(productItemList, &productItem)
-							}
-							err = tx.Create(&valueList).Error
-							if err != nil {
-								ctx.Logger.Error("Failed to create product variants option value", err)
-								tx.Rollback()
-								return errors.New("failed to create product variants option value")
-							}
-							continue
-						}
-
 						productItem := model.ProductItem{
 							Uuid:                      uuid.New().String(),
 							ProductUuid:               product.Uuid,
