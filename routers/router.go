@@ -32,6 +32,7 @@ func InitRouter(ctx *app.App) {
 	InitTeamMemberRouter(ctx)
 	InitProductCategoryRouter(ctx)
 	InitResourceRouter(ctx)
+	InitProductRouter(ctx)
 }
 
 func InitUserRouter(ctx *app.App) {
@@ -321,6 +322,21 @@ func InitResourceRouter(ctx *app.App) {
 		v1.POST("/resource/create_folder", resourceController.CreateFolder)
 		v1.POST("/resource/folder_list", resourceController.GetFolderList)
 		v1.POST("/resource/move", resourceController.MoveResource)
+	}
+}
+
+func InitProductRouter(ctx *app.App) {
+	v1 := ctx.Group(ctx.Config.ApiPrefix + "/v1")
+	v1.Use(middleware.LoginCheck())
+	{
+		productController := &controller.ProductController{
+			ProductService: &service.ProductService{},
+		}
+		v1.POST("/product/create", productController.ProductCreate)
+		// v1.POST("/product/list", productController.GetProductList)
+		// v1.POST("/product/update", productController.UpdateProduct)
+		// v1.POST("/product/delete", productController.DeleteProduct)
+		// v1.POST("/product/info", productController.GetProductInfo)
 	}
 }
 

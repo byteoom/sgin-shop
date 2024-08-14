@@ -95,3 +95,21 @@ func ArrayToJsonString(arr []string) string {
 	jsonBytes, _ := json.Marshal(arr)
 	return string(jsonBytes)
 }
+
+func MapGetString(m map[string]interface{}, key string) string {
+	if v, ok := m[key]; ok {
+		if str, ok := v.(string); ok {
+			return str
+		}
+	}
+	return ""
+}
+
+func MapGetFloat64(m map[string]interface{}, key string) float64 {
+	if v, ok := m[key]; ok {
+		if f, ok := v.(float64); ok {
+			return f
+		}
+	}
+	return 0
+}
