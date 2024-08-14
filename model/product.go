@@ -9,6 +9,8 @@ type ProductBase struct {
 	Width float64 `json:"width" gorm:"type:decimal(10,2)"` // 宽度
 	// 高度
 	Height float64 `json:"height" gorm:"type:decimal(10,2)"` // 高度
+
+	Unit string `json:"unit" gorm:"type:varchar(100)"` // 单位 例如: 个、件、套、箱
 }
 
 // 产品
@@ -46,9 +48,9 @@ type Product struct {
 
 // 产品变体
 type ProductVariants struct {
-	ID        int64  `json:"id" gorm:"primary_key"`
-	Uuid      string `json:"uuid" gorm:"type:varchar(36);unique_index"`
-	ProductID int64  `json:"product_id" gorm:"index"`
+	ID          int64  `json:"id" gorm:"primary_key"`
+	Uuid        string `json:"uuid" gorm:"type:varchar(36);unique_index"`
+	ProductUuid string `json:"product_uuid" gorm:"index"`
 	// 产品变体名称
 	Name string `json:"name" gorm:"type:varchar(100)"`
 	// 产品变体描述
@@ -61,6 +63,7 @@ type ProductVariants struct {
 type ProductVariantsOption struct {
 	ID                  int64  `json:"id" gorm:"primary_key"`
 	Uuid                string `json:"uuid" gorm:"type:varchar(36);unique_index"`
+	ProductUuid         string `json:"product_uuid" gorm:"index"`
 	ProductVariantsUuid string `json:"product_variants_uuid" gorm:"type:varchar(36);index"`
 	// 产品变体Option名称
 	Name string `json:"name" gorm:"type:varchar(100)"`
@@ -103,6 +106,9 @@ type ProductItem struct {
 
 	//变体option值uuid
 	ProductVariantsOptionValueUuid string `json:"product_variants_option_value_uuid" gorm:"type:varchar(36);index"`
+
+	//  产品变体
+	Variants string `json:"variants" gorm:"type:text"`
 
 	Images string `json:"images" gorm:"comment:产品图片"`
 	// 产品视频
@@ -150,7 +156,33 @@ type ReqProductCreate struct {
 	Videos []string `json:"videos" binding:"-"`
 
 	// 产品变体
-	Variants []ReqProductVariantsCreate `json:"variants" binding:"-"`
+	Variants []*ReqProductVariantsCreate `json:"variants" binding:"-"`
+
+	// 产品变体值
+	VariantsVals []map[string]interface{} `json:"variants_vals" binding:"-"`
+
+	Unit string `json:"unit" binding:"-"` // 单位 例如: 个、件、套、箱
+
+	// 产品上架状态
+	// 上架、下架、售罄
+	ProductStatus string `json:"product_status" binding:"-"` // 产品状态 上架、下架、售罄
+
+	// 预警库存
+	StockWarning int64 `json:"stock_warning" binding:"-"`
+
+	// 低于警戒库存是否可售
+	StockWarningSell bool `json:"stock_warning_sell" binding:"-"`
+
+	// 长度
+	Length float64 `json:"length" binding:"-"` // 长度
+	// 宽度
+	Width float64 `json:"width" binding:"-"` // 宽度
+
+	// 高度
+	Height float64 `json:"height" binding:"-"` // 高度
+
+	// 重量
+	Weight float64 `json:"weight" binding:"-"` // 重量
 }
 
 type ReqProductVariantsCreate struct {
@@ -160,7 +192,7 @@ type ReqProductVariantsCreate struct {
 	// 产品变体描述
 	Description string `json:"description" binding:"required"`
 	// 产品变体Option
-	Options []ReqProductVariantsOptionCreate `json:"options" binding:"-"`
+	Options []string `json:"options" binding:"-"`
 }
 
 type ReqProductVariantsOptionCreate struct {
