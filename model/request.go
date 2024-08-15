@@ -165,3 +165,20 @@ type ReqMenuAPIQueryParam struct {
 	APIUUID  string `json:"api_uuid"`
 	Pagination
 }
+
+// 产品查询参数
+type ReqProductQueryParam struct {
+	Name string `json:"name"`
+	Pagination
+}
+
+// 产品查询参数
+type ReqProductSKUQueryParam struct {
+	Name string `json:"name"`
+	Sku  string `json:"sku"`
+	Pagination
+}
+
+type ReqProductDeleteParam struct {
+	UUids []string `json:"uuids"`
+}

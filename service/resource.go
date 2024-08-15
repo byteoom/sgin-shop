@@ -86,6 +86,22 @@ func (s *ResourceService) GetResourceFolderByPath(ctx *app.Context, path string)
 	resource := &model.Resource{}
 	err := ctx.DB.Where("address = ? and type = ?", path, model.ResourceTypeFolder).First(resource).Error
 	if err != nil {
+		// 如果不存在则创建
+		if err == gorm.ErrRecordNotFound {
+			resource.Uuid = uuid.New().String()
+			resource.Name = filepath.Base(path)
+			resource.Address = path
+			resource.Path = path
+			resource.Type = model.ResourceTypeFolder
+			resource.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+			resource.UpdatedAt = resource.CreatedAt
+			err = ctx.DB.Create(resource).Error
+			if err != nil {
+				ctx.Logger.Error("Failed to create resource", err)
+				return nil, errors.New("failed to create resource")
+			}
+			return resource, nil
+		}
 		return nil, err
 	}
 	return resource, nil
@@ -271,4 +287,21 @@ func (s *ResourceService) GetResourceList(ctx *app.Context, params *model.ReqRes
 		Total: total,
 		Data:  resources,
 	}, nil
+}
+
+// 根据uuid列表获取资源列表
+func (s *ResourceService) GetResourceByUUIDList(ctx *app.Context, uuidList []string) (map[string]*model.Resource, error) {
+	resourceMap := make(map[string]*model.Resource, 0)
+	var resources []*model.Resource
+	err := ctx.DB.Where("uuid IN (?)", uuidList).Find(&resources).Error
+	if err != nil {
+		ctx.Logger.Error("Failed to get resource list by UUID list", err)
+		return nil, errors.New("failed to get resource list by UUID list")
+	}
+
+	for _, resource := range resources {
+		resourceMap[resource.Uuid] = resource
+	}
+
+	return resourceMap, nil
 }

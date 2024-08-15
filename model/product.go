@@ -46,6 +46,12 @@ type Product struct {
 
 }
 
+type ProductRes struct {
+	Product
+	ImageList       []string        `json:"image_list"`
+	ProductCategory ProductCategory `json:"product_category"`
+}
+
 // 产品变体
 type ProductVariants struct {
 	ID          int64  `json:"id" gorm:"primary_key"`
@@ -126,6 +132,12 @@ type ProductItem struct {
 
 	CreatedAt string `gorm:"autoCreateTime" json:"created_at"` // CreatedAt 记录了创建的时间
 	UpdatedAt string `gorm:"autoUpdateTime" json:"updated_at"` // UpdatedAt 记录了最后更新的时间
+}
+
+type ProductItemRes struct {
+	ProductItem
+	ImageList   []string    `json:"image_list"`
+	ProductInfo *ProductRes `json:"product_info"`
 }
 
 type ReqProdcutItemCommonCreate struct {
