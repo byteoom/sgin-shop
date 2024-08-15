@@ -424,3 +424,114 @@ func (p *ProductService) DeleteProductSkuByUUIDList(ctx *app.Context, uuidList [
 	}
 	return nil
 }
+
+// GetProductInfo
+func (p *ProductService) GetProductInfo(ctx *app.Context, uuid string) (r *model.ProductRes, err error) {
+	product := &model.Product{}
+	err = ctx.DB.Where("uuid = ?", uuid).First(&product).Error
+	if err != nil {
+		ctx.Logger.Error("Failed to get product by UUID", err)
+		return nil, errors.New("failed to get product by UUID")
+	}
+
+	imageUuids := make([]string, 0)
+	mImage := make(map[string]bool, 0)
+
+	var images []string
+
+	if product.Images != "" {
+		err = json.Unmarshal([]byte(product.Images), &images)
+		if err != nil {
+			ctx.Logger.Error("Failed to get product images", err)
+			return nil, errors.New("failed to get product images")
+		}
+	}
+
+	for _, image := range images {
+		if _, ok := mImage[image]; !ok {
+			mImage[image] = true
+			imageUuids = append(imageUuids, image)
+		}
+	}
+
+	resourceMap, err := NewResourceService().GetResourceByUUIDList(ctx, imageUuids)
+	if err != nil {
+
+		ctx.Logger.Error("Failed to get resource list by UUID list", err)
+		return nil, errors.New("failed to get resource list by UUID list")
+	}
+
+	productRes := &model.ProductRes{
+		Product:         *product,
+		ProductCategory: model.ProductCategory{},
+		ImageList:       make([]string, 0),
+	}
+
+	for _, image := range images {
+		if resource, ok := resourceMap[image]; ok {
+			productRes.ImageList = append(productRes.ImageList, resource.Address)
+		}
+	}
+
+	return productRes, nil
+}
+
+// GetProductSkuInfo
+func (p *ProductService) GetProductSkuInfo(ctx *app.Context, uuid string) (r *model.ProductItemRes, err error) {
+	product := &model.ProductItem{}
+	err = ctx.DB.Where("uuid = ?", uuid).First(&product).Error
+	if err != nil {
+		ctx.Logger.Error("Failed to get product item by UUID", err)
+		return nil, errors.New("failed to get product item by UUID")
+	}
+
+	productMap, err := p.GetProductByUUIDList(ctx, []string{product.ProductUuid})
+	if err != nil {
+		ctx.Logger.Error("Failed to get product list by UUID list", err)
+		return nil, errors.New("failed to get product list by UUID list")
+	}
+
+	imageUuids := make([]string, 0)
+	mImage := make(map[string]bool, 0)
+	mProductImages := make(map[string][]string, 0)
+
+	if product.Images != "" {
+		var images []string
+		err = json.Unmarshal([]byte(product.Images), &images)
+		if err != nil {
+			ctx.Logger.Error("Failed to get product images", err)
+			return nil, errors.New("failed to get product images")
+		}
+		for _, image := range images {
+			if _, ok := mImage[image]; !ok {
+				mImage[image] = true
+				imageUuids = append(imageUuids, image)
+			}
+		}
+		mProductImages[product.Uuid] = images
+	}
+
+	productRes := &model.ProductItemRes{
+		ProductItem: *product,
+		ImageList:   make([]string, 0),
+	}
+	if product, ok := productMap[product.ProductUuid]; ok {
+		productRes.ProductInfo = product
+	}
+
+	resourceMap, err := NewResourceService().GetResourceByUUIDList(ctx, imageUuids)
+	if err != nil {
+		ctx.Logger.Error("Failed to get resource list by UUID list", err)
+		return nil, errors.New("failed to get resource list by UUID list")
+	}
+
+	if images, ok := mProductImages[product.Uuid]; ok {
+		for _, image := range images {
+			if resource, ok := resourceMap[image]; ok {
+				productRes.ImageList = append(productRes.ImageList, resource.Address)
+			}
+		}
+	}
+
+	return productRes, nil
+}

@@ -71,6 +71,26 @@ func (p *ProductController) DeleteProduct(ctx *app.Context) {
 	ctx.JSONSuccess("Deleted product")
 }
 
+// GetProductInfo
+func (p *ProductController) GetProductInfo(ctx *app.Context) {
+	// 创建参数
+	params := &model.ReqUuidParam{}
+	// 绑定参数
+	if err := ctx.Bind(params); err != nil {
+		ctx.Logger.Error("Failed to bind params", err)
+		ctx.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+	// 获取产品信息
+	info, err := p.ProductService.GetProductInfo(ctx, params.Uuid)
+	if err != nil {
+		ctx.Logger.Error("Failed to get product info", err)
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+	ctx.JSONSuccess(info)
+}
+
 // GetProductItemList
 func (p *ProductController) GetProductItemList(ctx *app.Context) {
 	// 创建参数
@@ -89,6 +109,26 @@ func (p *ProductController) GetProductItemList(ctx *app.Context) {
 		return
 	}
 	ctx.JSONSuccess(list)
+}
+
+// GetProductItemInfo
+func (p *ProductController) GetProductItemInfo(ctx *app.Context) {
+	// 创建参数
+	params := &model.ReqUuidParam{}
+	// 绑定参数
+	if err := ctx.Bind(params); err != nil {
+		ctx.Logger.Error("Failed to bind params", err)
+		ctx.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+	// 获取产品信息
+	info, err := p.ProductService.GetProductSkuInfo(ctx, params.Uuid)
+	if err != nil {
+		ctx.Logger.Error("Failed to get product info", err)
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+	ctx.JSONSuccess(info)
 }
 
 // DeleteProductItem
