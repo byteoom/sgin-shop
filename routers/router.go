@@ -336,10 +336,11 @@ func InitProductRouter(ctx *app.App) {
 		v1.POST("/product/list", productController.GetProductList)
 		// v1.POST("/product/update", productController.UpdateProduct)
 		v1.POST("/product/delete", productController.DeleteProduct)
-		// v1.POST("/product/info", productController.GetProductInfo)
+		v1.POST("/product/info", productController.GetProductInfo)
 
 		v1.POST("/product/item/list", productController.GetProductItemList)
 		v1.POST("/product/item/delete", productController.DeleteProductItem)
+		v1.POST("/product/item/info", productController.GetProductItemInfo)
 	}
 }
 
