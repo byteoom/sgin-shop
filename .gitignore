@@ -1,3 +1,5 @@
+sgin-shop
+deploy.sh
 public/*
 release*
 .vscode
