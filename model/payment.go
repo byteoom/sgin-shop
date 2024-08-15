@@ -28,3 +28,11 @@ type Payment struct {
 	CreatedAt string `gorm:"autoCreateTime" json:"created_at"` // CreatedAt 记录了创建的时间
 	UpdatedAt string `gorm:"autoUpdateTime" json:"updated_at"` // UpdatedAt 记录了最后更新的时间
 }
+
+type ReqPaymentQueryParam struct {
+	UserID   int64 `json:"user_id"`   // 用户ID，用于过滤
+	OrderID  int64 `json:"order_id"`  // 订单ID，用于过滤
+	Page     int   `json:"page"`      // 当前页码
+	PageSize int   `json:"page_size"` // 每页记录数
+}
+
