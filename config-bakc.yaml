@@ -11,9 +11,9 @@ LogConfig:
   ShowConsole: true
 MySQL:
   Host: "177.8.0.13"
-  Port: 3306
+  Port: 3307
   Username: "root"
-  Password: "HQW10670"
+  Password: "root123"
   Database: "sgin2"
   ShowSQL: true
 
