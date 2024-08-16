@@ -10,7 +10,7 @@ LogConfig:
   ResponseSize: 1000
   ShowConsole: true
 MySQL:
-  Host: "177.8.0.13"
+  Host: "127.0.0.1"
   Port: 3307
   Username: "root"
   Password: "root123"

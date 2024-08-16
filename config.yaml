@@ -1,4 +1,4 @@
-ServerPort: "8081"
+ServerPort: "7001"
 LogConfig:
   Level: "info"
   Format: "console"
@@ -10,7 +10,7 @@ LogConfig:
   ResponseSize: 1000
   ShowConsole: true
 MySQL:
-  Host: "177.8.0.13"
+  Host: "177.7.0.13"
   Port: 3306
   Username: "root"
   Password: "HQW10670"
