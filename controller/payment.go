@@ -34,14 +34,12 @@ func (c *PaymentController) CreatePayment(ctx *app.Context) {
 		ctx.JSONError(http.StatusBadRequest, "无效的请求数据")
 		return
 	}
-
 	newPayment, err := c.PaymentService.CreatePayment(ctx, &payment)
 	if err != nil {
 		ctx.JSONError(http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	ctx.JSON(http.StatusCreated, newPayment)
+	ctx.JSONSuccess(newPayment)
 }
 
 // GetPaymentByUUID 根据UUID获取付款记录
@@ -69,8 +67,7 @@ func (c *PaymentController) GetPaymentByUUID(ctx *app.Context) {
 		ctx.JSONError(http.StatusInternalServerError, "内部服务器错误")
 		return
 	}
-
-	ctx.JSON(http.StatusOK, payment)
+	ctx.JSONSuccess(payment)
 }
 
 // UpdatePayment 更新付款记录
@@ -108,7 +105,7 @@ func (c *PaymentController) UpdatePayment(ctx *app.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, param)
+	ctx.JSONSuccess(param)
 }
 
 // DeletePayment 删除付款记录
@@ -137,7 +134,7 @@ func (c *PaymentController) DeletePayment(ctx *app.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, "ok")
+	ctx.JSONSuccess(param)
 }
 
 // GetPaymentList 获取付款记录列表
@@ -163,7 +160,5 @@ func (c *PaymentController) GetPaymentList(ctx *app.Context) {
 		ctx.JSONError(http.StatusInternalServerError, "内部服务器错误")
 		return
 	}
-
-	ctx.JSON(http.StatusOK, pagedResponse)
+	ctx.JSONSuccess(pagedResponse)
 }
-
