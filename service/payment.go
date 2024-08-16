@@ -47,10 +47,9 @@ func (s *PaymentService) GetPaymentByUUID(ctx *app.Context, uuid string) (*model
 }
 
 // UpdatePayment 更新付款记录
-func (s *PaymentService) UpdatePayment(ctx *app.Context, payment *model.Payment) error {
+func (s *PaymentService) UpdatePayment(ctx *app.Context, payment **model.Payment) error {
 	now := time.Now()
-	payment.UpdatedAt = now.Format(time.RFC3339)
-
+	(*payment).UpdatedAt = now.Format(time.RFC3339)
 	err := ctx.DB.Updates(payment).Error
 	if err != nil {
 		ctx.Logger.Error("Failed to update payment", err)

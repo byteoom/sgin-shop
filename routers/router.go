@@ -33,6 +33,7 @@ func InitRouter(ctx *app.App) {
 	InitProductCategoryRouter(ctx)
 	InitResourceRouter(ctx)
 	InitProductRouter(ctx)
+	InitPaymentRouter(ctx)
 }
 
 func InitUserRouter(ctx *app.App) {
@@ -370,4 +371,20 @@ func InitSwaggerRouter(ctx *app.App) {
 		}
 		c.Data(http.StatusOK, "text/html; charset=utf-8", b)
 	})
+}
+
+// InitPaymentRouter 初始化支付相关的路由
+func InitPaymentRouter(ctx *app.App) {
+	v1 := ctx.Group(ctx.Config.ApiPrefix + "/v1")
+	//v1.Use(middleware.LoginCheck())
+	{
+		paymentController := &controller.PaymentController{
+			PaymentService: &service.PaymentService{},
+		}
+		v1.POST("/payments/create", paymentController.CreatePayment)
+		v1.POST("/payments/getPayment", paymentController.GetPaymentByUUID)
+		v1.POST("/payments/updatePayment", paymentController.UpdatePayment)
+		v1.POST("/payments/deletePayment", paymentController.DeletePayment)
+		v1.POST("/payments/list", paymentController.GetPaymentList)
+	}
 }

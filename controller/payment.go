@@ -55,8 +55,12 @@ func (c *PaymentController) CreatePayment(ctx *app.Context) {
 // @Failure 500 {string} string "内部服务器错误"
 // @Router /payments/{uuid} [get]
 func (c *PaymentController) GetPaymentByUUID(ctx *app.Context) {
-	uuid := ctx.Param("uuid")
-	payment, err := c.PaymentService.GetPaymentByUUID(ctx, uuid)
+	param := &model.Payment{}
+	if err := ctx.ShouldBindJSON(param); err != nil {
+		ctx.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+	payment, err := c.PaymentService.GetPaymentByUUID(ctx, param.Uuid)
 	if err != nil {
 		if err.Error() == "payment not found" {
 			ctx.JSONError(http.StatusNotFound, "付款记录未找到")
@@ -83,18 +87,13 @@ func (c *PaymentController) GetPaymentByUUID(ctx *app.Context) {
 // UpdatePayment 更新付款记录
 // ... 其他注释保持不变 ...
 func (c *PaymentController) UpdatePayment(ctx *app.Context) {
-	uuid := ctx.Param("uuid") // 从URL路径中获取UUID
-
-	// 假设请求体中的payment对象不包含UUID，我们需要单独绑定其他字段
-	var payment model.Payment
-	if err := ctx.ShouldBindJSON(&payment); err != nil {
+	param := &model.Payment{}
+	if err := ctx.ShouldBindJSON(&param); err != nil {
 		ctx.JSONError(http.StatusBadRequest, "无效的请求数据")
 		return
 	}
-	// 手动设置UUID，因为我们已经从URL中获取了它
-	payment.Uuid = uuid
 	// 更新记录之前，需要先检查记录是否存在
-	_, err := c.PaymentService.GetPaymentByUUID(ctx, uuid)
+	_, err := c.PaymentService.GetPaymentByUUID(ctx, param.Uuid)
 	if err != nil {
 		if err.Error() == "payment not found" {
 			ctx.JSONError(http.StatusNotFound, "付款记录未找到")
@@ -103,13 +102,13 @@ func (c *PaymentController) UpdatePayment(ctx *app.Context) {
 		ctx.JSONError(http.StatusInternalServerError, "内部服务器错误")
 		return
 	}
-	err = c.PaymentService.UpdatePayment(ctx, &payment)
+	err = c.PaymentService.UpdatePayment(ctx, &param)
 	if err != nil {
 		ctx.JSONError(http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	ctx.JSON(http.StatusOK, payment)
+	ctx.JSON(http.StatusOK, param)
 }
 
 // DeletePayment 删除付款记录
@@ -123,8 +122,12 @@ func (c *PaymentController) UpdatePayment(ctx *app.Context) {
 // @Failure 500 {string} string "内部服务器错误"
 // @Router /payments/{uuid} [delete]
 func (c *PaymentController) DeletePayment(ctx *app.Context) {
-	uuid := ctx.Param("uuid")
-	err := c.PaymentService.DeletePayment(ctx, uuid)
+	param := &model.Payment{}
+	if err := ctx.ShouldBindJSON(param); err != nil {
+		ctx.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+	err := c.PaymentService.DeletePayment(ctx, param.Uuid)
 	if err != nil {
 		if err.Error() == "payment not found" {
 			ctx.JSONError(http.StatusNotFound, "付款记录未找到")
@@ -155,7 +158,6 @@ func (c *PaymentController) GetPaymentList(ctx *app.Context) {
 		ctx.JSONError(http.StatusBadRequest, "无效的查询参数")
 		return
 	}
-
 	pagedResponse, err := c.PaymentService.GetPaymentList(ctx, &params)
 	if err != nil {
 		ctx.JSONError(http.StatusInternalServerError, "内部服务器错误")
@@ -164,3 +166,4 @@ func (c *PaymentController) GetPaymentList(ctx *app.Context) {
 
 	ctx.JSON(http.StatusOK, pagedResponse)
 }
+
