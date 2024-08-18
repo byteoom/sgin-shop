@@ -10,8 +10,9 @@ type Order struct {
 	// 订单总金额
 	TotalAmount float64 `json:"total_amount"`
 	// 订单状态 1:待支付 2:已支付 3:已发货 4:已完成 5:已关闭
-	Status int `json:"status" gorm:"default:1"`
-
+	Status string `json:"status" gorm:"default:1"`
+	// 是否删除 1:是 0:否
+	IsDeleted int `json:"is_deleted" gorm:"default:0"`
 	// 收货人姓名
 	ReceiverName string `json:"receiver_name" gorm:"type:varchar(100)"`
 	// 收货人电话
@@ -50,16 +51,17 @@ type Order struct {
 type OrderItem struct {
 	ID int64 `json:"id" gorm:"primary_key"`
 	// 订单ID
-	OrderID int64 `json:"order_id" gorm:"index"`
+	OrderID string `json:"order_id" gorm:"index"`
 	// 商品ID
-	ProductItemID int64 `json:"product_item_id" gorm:"index"`
+	ProductItemID string `json:"product_item_id"`
 	// 商品数量
 	Quantity int `json:"quantity"`
 	// 商品单价
 	Price float64 `json:"price"`
 	// 商品总价
 	TotalAmount float64 `json:"total_amount"`
-
+	// 是否删除 1:是 0:否
+	IsDeleted int `json:"is_deleted" gorm:"default:0"`
 	// 折扣金额
 	DiscountAmount float64 `json:"discount_amount"`
 	// 折扣
@@ -68,4 +70,19 @@ type OrderItem struct {
 	DiscountPrice float64 `json:"discount_price"`
 	CreatedAt     string  `gorm:"autoCreateTime" json:"created_at"` // CreatedAt 记录了创建的时间
 	UpdatedAt     string  `gorm:"autoUpdateTime" json:"updated_at"` // UpdatedAt 记录了最后更新的时间
+}
+
+type ReqOrderCreate struct {
+	Order
+	OrderItems []OrderItem `json:"order_items"`
+}
+
+type ReqOrderUpdate struct {
+	OrderNo string `json:"order_no"`
+	// 订单状态 1:待支付 2:已支付 3:已发货 4:已完成 5:已关闭
+	Status string `json:"status"`
+}
+
+type ReqOrderGet struct {
+	OrderNo string `json:"order_no"`
 }
