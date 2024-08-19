@@ -16,6 +16,8 @@ type Resource struct {
 	// 父级资源
 	ParentUuid string `json:"parent_uuid" gorm:"type:varchar(36);index"`
 
+	Md5 string `json:"md5" gorm:"type:varchar(70);index"` // 文件MD5
+
 	// 资源类型
 	Type string `json:"type" gorm:"type:varchar(100)"` // 资源类型 文件夹、文件 等
 

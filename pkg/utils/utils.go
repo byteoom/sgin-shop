@@ -2,10 +2,13 @@ package utils
 
 import (
 	"crypto/hmac"
+	"crypto/md5"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"io"
 	"math/rand"
+	"mime/multipart"
 	"strconv"
 	"time"
 
@@ -112,4 +115,13 @@ func MapGetFloat64(m map[string]interface{}, key string) float64 {
 		}
 	}
 	return 0
+}
+
+// GetFileMd5
+func GetFileMd5(fileinfo multipart.File) (string, error) {
+	md5h := md5.New()
+	if _, err := io.Copy(md5h, fileinfo); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(md5h.Sum(nil)), nil
 }
