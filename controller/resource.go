@@ -6,10 +6,12 @@ import (
 	"path/filepath"
 	"sgin/model"
 	"sgin/pkg/app"
+	"sgin/pkg/utils"
 	"sgin/service"
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type ResourceController struct {
@@ -72,6 +74,7 @@ func (c *ResourceController) CreateResource(ctx *app.Context) {
 	files := form.File["files"]
 
 	resourceList := make([]*model.Resource, 0)
+	addResourceList := make([]*model.Resource, 0)
 
 	now := time.Now().Format("2006-01-02 15:04:05")
 
@@ -81,7 +84,7 @@ func (c *ResourceController) CreateResource(ctx *app.Context) {
 		filename := uuid.New().String() + filepath.Ext(fileHeader.Filename)
 		address := filepath.Join(targetPath, filename)
 		ctx.Logger.Info("address:", address)
-		resourceList = append(resourceList, &model.Resource{
+		resourceItem := &model.Resource{
 			Uuid:       uuid.New().String(),
 			Name:       fileHeader.Filename,
 			ParentUuid: parentUuid,
@@ -92,24 +95,54 @@ func (c *ResourceController) CreateResource(ctx *app.Context) {
 			Address:    address,
 			CreatedAt:  now,
 			UpdatedAt:  now,
-		})
+		}
 
 		saveAddress := filepath.Join(ctx.Config.Upload.Dir, address)
 
-		ctx.Logger.Info("saveAddress:", saveAddress)
-
-		err := ctx.SaveUploadedFile(fileHeader, filepath.Join(ctx.Config.Upload.Dir, address))
+		// 获取文件md5
+		file, err := fileHeader.Open()
 		if err != nil {
-			ctx.JSONError(http.StatusInternalServerError, "Cannot save file")
+			ctx.JSONError(http.StatusInternalServerError, "Cannot open file")
+			return
+		}
+		defer file.Close()
+
+		md5str, err := utils.GetFileMd5(file)
+
+		if err != nil {
+			ctx.JSONError(http.StatusInternalServerError, "Cannot get file md5")
 			return
 		}
 
+		resourceItem.Md5 = md5str
+		exsitRes, err := c.ResourceService.GetResourceFileByPathAndMd5(ctx, targetPath, md5str)
+		if err != nil && err != gorm.ErrRecordNotFound {
+			ctx.JSONError(http.StatusInternalServerError, err.Error())
+			return
+		}
+		if err != nil && err == gorm.ErrRecordNotFound {
+
+			ctx.Logger.Info("saveAddress:", saveAddress)
+			addResourceList = append(addResourceList, resourceItem)
+
+			err := ctx.SaveUploadedFile(fileHeader, filepath.Join(ctx.Config.Upload.Dir, address))
+			if err != nil {
+				ctx.JSONError(http.StatusInternalServerError, "Cannot save file")
+				return
+			}
+		} else {
+			resourceItem = exsitRes
+		}
+		resourceList = append(resourceList, resourceItem)
+
 	}
 
-	err := c.ResourceService.CreateResourceList(ctx, resourceList)
-	if err != nil {
-		ctx.JSONError(http.StatusInternalServerError, err.Error())
-		return
+	if len(addResourceList) > 0 {
+		err := c.ResourceService.CreateResourceList(ctx, addResourceList)
+		if err != nil {
+			ctx.JSONError(http.StatusInternalServerError, err.Error())
+			return
+		}
 	}
 
 	ctx.JSONSuccess(resourceList)

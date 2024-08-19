@@ -107,6 +107,16 @@ func (s *ResourceService) GetResourceFolderByPath(ctx *app.Context, path string)
 	return resource, nil
 }
 
+// 根据path 和md5获取文件资源
+func (s *ResourceService) GetResourceFileByPathAndMd5(ctx *app.Context, path, md5 string) (*model.Resource, error) {
+	resource := &model.Resource{}
+	err := ctx.DB.Where("path = ? and md5 = ?", path, md5).First(resource).Error
+	if err != nil {
+		return nil, err
+	}
+	return resource, nil
+}
+
 // UpdateResource 更新资源
 func (s *ResourceService) UpdateResource(ctx *app.Context, resource *model.Resource) error {
 	resource.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
