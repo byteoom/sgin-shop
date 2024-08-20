@@ -13,7 +13,7 @@ MySQL:
   Host: "127.0.0.1"
   Port: 3306
   Username: "root"
-  Password: "root123"
+  Password: "3548297839e"
   Database: "sgin2"
   ShowSQL: true
 
