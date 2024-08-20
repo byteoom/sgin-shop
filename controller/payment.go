@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"sgin/model"
 	"sgin/pkg/app"
@@ -151,10 +152,11 @@ func (c *PaymentController) DeletePayment(ctx *app.Context) {
 // @Router /payments/list [get]
 func (c *PaymentController) GetPaymentList(ctx *app.Context) {
 	var params model.ReqPaymentQueryParam
-	if err := ctx.ShouldBindQuery(&params); err != nil {
+	if err := ctx.ShouldBindJSON(&params); err != nil {
 		ctx.JSONError(http.StatusBadRequest, "无效的查询参数")
 		return
 	}
+	fmt.Println(&params)
 	pagedResponse, err := c.PaymentService.GetPaymentList(ctx, &params)
 	if err != nil {
 		ctx.JSONError(http.StatusInternalServerError, "内部服务器错误")

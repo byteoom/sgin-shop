@@ -88,13 +88,11 @@ func (s *PaymentService) GetPaymentList(ctx *app.Context, params *model.ReqPayme
 	}
 	// 计算偏移量
 	offset := (params.Page - 1) * params.PageSize
-
 	err := db.Count(&total).Error
 	if err != nil {
 		ctx.Logger.Error("Failed to get payment count", err)
 		return nil, errors.New("failed to get payment count")
 	}
-
 	err = db.Offset(offset).Limit(params.PageSize).Find(&payments).Error
 	if err != nil {
 		ctx.Logger.Error("Failed to get payment list", err)
