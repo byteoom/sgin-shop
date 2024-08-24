@@ -91,6 +91,49 @@ func (p *ProductController) GetProductInfo(ctx *app.Context) {
 	ctx.JSONSuccess(info)
 }
 
+// GetShowProductInfo
+func (p *ProductController) GetShowProductInfo(ctx *app.Context) {
+	// 创建参数
+	params := &model.ReqUuidParam{}
+	// 绑定参数
+	if err := ctx.Bind(params); err != nil {
+		ctx.Logger.Error("Failed to bind params", err)
+		ctx.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+	// 获取产品信息
+	info, err := p.ProductService.GetShowProductInfo(ctx, params.Uuid)
+	if err != nil {
+		ctx.Logger.Error("Failed to get product info", err)
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+	ctx.JSONSuccess(info)
+}
+
+// GetShowProductList
+func (p *ProductController) GetShowProductList(ctx *app.Context) {
+
+	// 创建参数
+	params := &model.ReqProductQueryParam{}
+	// 绑定参数
+	if err := ctx.Bind(params); err != nil {
+		ctx.Logger.Error("Failed to bind params", err)
+		ctx.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// 获取产品列表
+	list, err := p.ProductService.GetShowProductList(ctx, params)
+	if err != nil {
+
+		ctx.Logger.Error("Failed to get product list", err)
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+	ctx.JSONSuccess(list)
+}
+
 // GetProductItemList
 func (p *ProductController) GetProductItemList(ctx *app.Context) {
 	// 创建参数

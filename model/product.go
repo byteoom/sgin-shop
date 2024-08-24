@@ -52,6 +52,41 @@ type ProductRes struct {
 	ProductCategory ProductCategory `json:"product_category"`
 }
 
+// 前端展示的产品
+type ProductShow struct {
+	ProductUuid     string `json:"product_uuid" gorm:"type:varchar(36);index"`
+	ProductItemUuid string `json:"product_item_uuid" gorm:"type:varchar(36);index"`
+	// 产品名称
+	Name string `json:"name" gorm:"type:varchar(100)"`
+	// 产品描述
+	Description string `json:"description" gorm:"type:varchar(255)"`
+	// 产品价格
+	Price float64 `json:"price" gorm:"type:decimal(10,2)"`
+	// 产品折扣
+	Discount float64 `json:"discount" gorm:"type:decimal(10,2)"`
+
+	// 产品折扣价
+	DiscountPrice float64 `json:"discount_price" gorm:"type:decimal(10,2)"`
+	// 产品库存
+	Stock int64 `json:"stock" gorm:"type:int"`
+	// 产品图片
+	Images []string `json:"images" gorm:"comment:产品图片"`
+	// 产品视频
+	Videos []string `json:"videos" gorm:"comment:产品视频"`
+	// 产品分类
+	ProductCategoryUuid string `json:"product_category_uuid" gorm:"type:varchar(36);index"`
+	// 产品类型
+	Type string `json:"type" gorm:"type:varchar(100)"` // 产品类型 全新、二手、虚拟产品
+	// 产品状态
+}
+
+type ProductShowItem struct {
+	ProductShow
+	ProductVariants       []*ProductVariants       `json:"product_variants"`
+	ProductVariantsOption []*ProductVariantsOption `json:"product_variants_option"`
+	ProductItems          []*ProductItemRes        `json:"product_items"`
+}
+
 // 产品变体
 type ProductVariants struct {
 	ID          int64  `json:"id" gorm:"primary_key"`

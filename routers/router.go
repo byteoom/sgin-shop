@@ -36,6 +36,7 @@ func InitRouter(ctx *app.App) {
 	InitPaymentRouter(ctx)
 	InitCartRouter(ctx)
 	InitOrderRouter(ctx)
+	InitProductFrontRouter(ctx)
 }
 
 func InitUserRouter(ctx *app.App) {
@@ -344,6 +345,18 @@ func InitProductRouter(ctx *app.App) {
 		v1.POST("/product/item/list", productController.GetProductItemList)
 		v1.POST("/product/item/delete", productController.DeleteProductItem)
 		v1.POST("/product/item/info", productController.GetProductItemInfo)
+	}
+}
+
+func InitProductFrontRouter(ctx *app.App) {
+	v1 := ctx.Group(ctx.Config.ApiPrefix + "/v1")
+	{
+		productController := &controller.ProductController{
+			ProductService: &service.ProductService{},
+		}
+		v1.POST("/f/product/list", productController.GetShowProductList)
+		v1.POST("/f/product/info", productController.GetShowProductInfo)
+		v1.POST("/f/product/item/list", productController.GetProductItemList)
 	}
 }
 
