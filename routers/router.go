@@ -345,6 +345,19 @@ func InitProductRouter(ctx *app.App) {
 	}
 }
 
+func InitCartRouter(ctx *app.App) {
+	v1 := ctx.Group(ctx.Config.ApiPrefix + "/v1")
+	v1.Use(middleware.LoginCheck())
+	{
+		cartController := &controller.CartController{
+			CartService: &service.CartService{},
+		}
+		v1.POST("/cart/add", cartController.CreateCart)
+		v1.POST("/cart/list", cartController.GetCartList)
+		v1.POST("/cart/delete", cartController.DeleteCart)
+	}
+}
+
 func InitSwaggerRouter(ctx *app.App) {
 	ctx.GET("/swagger/doc.json", func(c *app.Context) {
 		jsonFile, err := ioutil.ReadFile("./docs/swagger.json") // Replace with your actual json file path
