@@ -113,6 +113,41 @@ func (s *CartService) DeleteCart(ctx *app.Context, uuid string) error {
 	return nil
 }
 
+// 根据购物车UUID 列表获取商品列表
+func (s *CartService) GetCartByUUIDList(ctx *app.Context, uuids []string) (map[string]*model.CartProductItemRes, error) {
+	carts := make([]*model.Cart, 0)
+	err := ctx.DB.Where("uuid in (?)", uuids).Find(&carts).Error
+	if err != nil {
+		ctx.Logger.Error("Failed to get cart by UUID list", err)
+		return nil, errors.New("failed to get cart by UUID list")
+	}
+
+	productItemUuids := make([]string, 0)
+	for _, cart := range carts {
+		productItemUuids = append(productItemUuids, cart.ProductItemUuid)
+	}
+
+	productItemMap, err := NewProductService().GetProductItemByUUIDList(ctx, productItemUuids)
+
+	if err != nil {
+		ctx.Logger.Error("Failed to get product item by UUID list", err)
+		return nil, errors.New("failed to get product item by UUID list")
+	}
+
+	res := make(map[string]*model.CartProductItemRes)
+	for _, cart := range carts {
+		item := &model.CartProductItemRes{
+			Cart: *cart,
+		}
+		if productItem, ok := productItemMap[cart.ProductItemUuid]; ok {
+			item.ProductItem = productItem
+		}
+		res[cart.Uuid] = item
+	}
+
+	return res, nil
+}
+
 // GetCartList retrieves a list of cart items based on query parameters
 func (s *CartService) GetCartList(ctx *app.Context, params *model.ReqCartQueryParam) (r *model.PagedResponse, err error) {
 	var (
