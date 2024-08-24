@@ -13,3 +13,14 @@ type Cart struct {
 	CreatedAt string `gorm:"autoCreateTime" json:"created_at"` // CreatedAt 记录了创建的时间
 	UpdatedAt string `gorm:"autoUpdateTime" json:"updated_at"` // UpdatedAt 记录了最后更新的时间
 }
+
+type CartProductItemRes struct {
+	Cart
+	ProductItem *ProductItemRes `json:"product_item"`
+}
+
+type ReqCartQueryParam struct {
+	// 用户ID
+	UserID string `json:"user_id"`
+	Pagination
+}

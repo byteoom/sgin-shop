@@ -97,17 +97,16 @@ func (s *AppService) GetAppList(ctx *app.Context, params *model.ReqAppQueryParam
 	if params.Status != 0 {
 		query = query.Where("status = ?", params.Status)
 	}
+	err = query.Count(&total).Error
+	if err != nil {
+		ctx.Logger.Error("Failed to count app list", err)
+		return nil, errors.New("failed to count app list")
+	}
 
 	err = query.Offset(params.GetOffset()).Limit(params.PageSize).Find(&apps).Error
 	if err != nil {
 		ctx.Logger.Error("Failed to get app list", err)
 		return nil, errors.New("failed to get app list")
-	}
-
-	err = query.Count(&total).Error
-	if err != nil {
-		ctx.Logger.Error("Failed to count app list", err)
-		return nil, errors.New("failed to count app list")
 	}
 
 	return &model.PagedResponse{
