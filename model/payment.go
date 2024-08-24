@@ -6,9 +6,9 @@ type Payment struct {
 	Uuid string `json:"uuid" gorm:"type:varchar(36);unique_index"`
 
 	// 用户ID
-	UserID int64 `json:"user_id" gorm:"index"`
+	UserID string `json:"user_id" gorm:"index"`
 	// 订单ID
-	OrderID int64 `json:"order_id" gorm:"index"`
+	OrderID string `json:"order_id" gorm:"index"`
 	// 付款金额
 	Amount float64 `json:"amount"`
 	// 付款状态  待支付 已经支付
@@ -30,9 +30,7 @@ type Payment struct {
 }
 
 type ReqPaymentQueryParam struct {
-	UserID   int64 `json:"user_id"`   // 用户ID，用于过滤
-	OrderID  int64 `json:"order_id"`  // 订单ID，用于过滤
-	Page     int   `json:"page"`      // 当前页码
-	PageSize int   `json:"page_size"` // 每页记录数
+	UserID  string `json:"user_id"`  // 用户ID，用于过滤
+	OrderID string `json:"order_id"` // 订单ID，用于过滤
+	Pagination
 }
-

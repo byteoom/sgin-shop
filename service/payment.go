@@ -2,12 +2,14 @@ package service
 
 import (
 	"errors"
-	"gorm.io/gorm"
 	"time"
 
-	"github.com/google/uuid"
+	"gorm.io/gorm"
+
 	"sgin/model"
 	"sgin/pkg/app"
+
+	"github.com/google/uuid"
 )
 
 type PaymentService struct {
@@ -20,8 +22,8 @@ func NewPaymentService() *PaymentService {
 // CreatePayment 创建一个新的付款记录
 func (s *PaymentService) CreatePayment(ctx *app.Context, payment *model.Payment) (*model.Payment, error) {
 	payment.Uuid = uuid.New().String()
-	payment.PaidAt = time.Now().Format(time.RFC3339)
-	payment.CreatedAt = time.Now().Format(time.RFC3339)
+	payment.PaidAt = time.Now().Format(time.DateTime)
+	payment.CreatedAt = time.Now().Format(time.DateTime)
 	payment.UpdatedAt = payment.CreatedAt
 	err := ctx.DB.Create(&payment).Error
 	if err != nil {
@@ -47,9 +49,9 @@ func (s *PaymentService) GetPaymentByUUID(ctx *app.Context, uuid string) (*model
 }
 
 // UpdatePayment 更新付款记录
-func (s *PaymentService) UpdatePayment(ctx *app.Context, payment **model.Payment) error {
+func (s *PaymentService) UpdatePayment(ctx *app.Context, payment *model.Payment) error {
 	now := time.Now()
-	(*payment).UpdatedAt = now.Format(time.RFC3339)
+	payment.UpdatedAt = now.Format(time.DateTime)
 	err := ctx.DB.Updates(payment).Error
 	if err != nil {
 		ctx.Logger.Error("Failed to update payment", err)
@@ -78,16 +80,13 @@ func (s *PaymentService) GetPaymentList(ctx *app.Context, params *model.ReqPayme
 	)
 	db := ctx.DB.Model(&model.Payment{})
 	// 应用UserID和OrderID过滤条件
-	if params != nil {
-		if params.UserID != 0 {
-			db = db.Where("user_id = ?", params.UserID)
-		}
-		if params.OrderID != 0 {
-			db = db.Where("order_id = ?", params.OrderID)
-		}
+
+	if params.UserID != "" {
+		db = db.Where("user_id = ?", params.UserID)
 	}
-	// 计算偏移量
-	offset := (params.Page - 1) * params.PageSize
+	if params.OrderID != "" {
+		db = db.Where("order_id = ?", params.OrderID)
+	}
 
 	err := db.Count(&total).Error
 	if err != nil {
@@ -95,7 +94,7 @@ func (s *PaymentService) GetPaymentList(ctx *app.Context, params *model.ReqPayme
 		return nil, errors.New("failed to get payment count")
 	}
 
-	err = db.Offset(offset).Limit(params.PageSize).Find(&payments).Error
+	err = db.Order("id DESC").Offset(params.GetOffset()).Limit(params.PageSize).Find(&payments).Error
 	if err != nil {
 		ctx.Logger.Error("Failed to get payment list", err)
 		return nil, errors.New("failed to get payment list")
