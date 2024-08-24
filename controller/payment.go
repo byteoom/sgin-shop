@@ -89,17 +89,8 @@ func (c *PaymentController) UpdatePayment(ctx *app.Context) {
 		ctx.JSONError(http.StatusBadRequest, "无效的请求数据")
 		return
 	}
-	// 更新记录之前，需要先检查记录是否存在
-	_, err := c.PaymentService.GetPaymentByUUID(ctx, param.Uuid)
-	if err != nil {
-		if err.Error() == "payment not found" {
-			ctx.JSONError(http.StatusNotFound, "付款记录未找到")
-			return
-		}
-		ctx.JSONError(http.StatusInternalServerError, "内部服务器错误")
-		return
-	}
-	err = c.PaymentService.UpdatePayment(ctx, &param)
+
+	err := c.PaymentService.UpdatePayment(ctx, param)
 	if err != nil {
 		ctx.JSONError(http.StatusInternalServerError, err.Error())
 		return
@@ -126,10 +117,6 @@ func (c *PaymentController) DeletePayment(ctx *app.Context) {
 	}
 	err := c.PaymentService.DeletePayment(ctx, param.Uuid)
 	if err != nil {
-		if err.Error() == "payment not found" {
-			ctx.JSONError(http.StatusNotFound, "付款记录未找到")
-			return
-		}
 		ctx.JSONError(http.StatusInternalServerError, "内部服务器错误")
 		return
 	}
@@ -151,7 +138,7 @@ func (c *PaymentController) DeletePayment(ctx *app.Context) {
 // @Router /payments/list [get]
 func (c *PaymentController) GetPaymentList(ctx *app.Context) {
 	var params model.ReqPaymentQueryParam
-	if err := ctx.ShouldBindQuery(&params); err != nil {
+	if err := ctx.ShouldBindJSON(&params); err != nil {
 		ctx.JSONError(http.StatusBadRequest, "无效的查询参数")
 		return
 	}
