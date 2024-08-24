@@ -52,6 +52,14 @@ func (c *OrderController) CreateOrder(ctx *app.Context) {
 		return
 	}
 
+	userId := ctx.GetString("user_id")
+	if userId == "" {
+		ctx.JSONError(http.StatusUnauthorized, "user_id is empty")
+		return
+	}
+
+	param.UserId = userId
+
 	if len(param.Items) == 0 && len(param.CartUuids) == 0 {
 		ctx.JSONError(http.StatusBadRequest, "items and cartUuids can't be empty at the same time")
 		return

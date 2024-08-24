@@ -125,11 +125,12 @@ func (p *ProductService) CreateVariants(ctx *app.Context, tx *gorm.DB, variants 
 		for _, option := range variant.Options {
 			optionUuid := uuid.New().String()
 			productVariantOption := model.ProductVariantsOption{
-				Uuid:        optionUuid,
-				ProductUuid: product.Uuid,
-				Name:        option,
-				CreatedAt:   now,
-				UpdatedAt:   now,
+				Uuid:                optionUuid,
+				ProductUuid:         product.Uuid,
+				ProductVariantsUuid: variantUuid,
+				Name:                option,
+				CreatedAt:           now,
+				UpdatedAt:           now,
 			}
 			mOptions[option] = optionUuid
 			err = tx.Create(&productVariantOption).Error
@@ -267,11 +268,47 @@ func (p *ProductService) ProductList(ctx *app.Context, params *model.ReqProductQ
 
 // 删除产品 ， 根据uuid列表
 func (p *ProductService) DeleteProductByUUIDList(ctx *app.Context, uuidList []string) (err error) {
-	err = ctx.DB.Where("uuid IN (?)", uuidList).Delete(&model.Product{}).Error
+
+	err = ctx.DB.Transaction(func(tx *gorm.DB) error {
+
+		err := tx.Where("uuid IN (?)", uuidList).Delete(&model.Product{}).Error
+		if err != nil {
+			ctx.Logger.Error("Failed to delete product by UUID list", err)
+			tx.Rollback()
+			return errors.New("failed to delete product by UUID list")
+		}
+
+		err = tx.Where("product_uuid IN (?)", uuidList).Delete(&model.ProductItem{}).Error
+		if err != nil {
+			ctx.Logger.Error("Failed to delete product item by UUID list", err)
+			tx.Rollback()
+			return errors.New("failed to delete product item by UUID list")
+		}
+
+		// 删除产品变体
+
+		err = tx.Where("product_uuid IN (?)", uuidList).Find(&model.ProductVariants{}).Error
+		if err != nil {
+			ctx.Logger.Error("Failed to get product variants by product uuid list", err)
+			tx.Rollback()
+
+			return errors.New("failed to get product variants by product uuid list")
+		}
+
+		err = tx.Where("product_uuid IN (?)", uuidList).Delete(&model.ProductVariantsOption{}).Error
+		if err != nil {
+			ctx.Logger.Error("Failed to delete product variants option by product uuid list", err)
+			tx.Rollback()
+			return errors.New("failed to delete product variants option by product uuid list")
+		}
+
+		return nil
+	})
+
 	if err != nil {
-		ctx.Logger.Error("Failed to delete product by UUID list", err)
-		return errors.New("failed to delete product by UUID list")
+		return err
 	}
+
 	return nil
 }
 
@@ -480,6 +517,87 @@ func (p *ProductService) GetProductInfo(ctx *app.Context, uuid string) (r *model
 	return productRes, nil
 }
 
+// GetShowProductInfo
+func (p *ProductService) GetShowProductInfo(ctx *app.Context, uuid string) (r *model.ProductShowItem, err error) {
+	product := &model.Product{}
+	err = ctx.DB.Where("uuid = ?", uuid).First(&product).Error
+	if err != nil {
+		ctx.Logger.Error("Failed to get product by UUID", err)
+		return nil, errors.New("failed to get product by UUID")
+	}
+
+	imageUuids := make([]string, 0)
+	mImage := make(map[string]bool, 0)
+
+	var images []string
+
+	if product.Images != "" {
+		err = json.Unmarshal([]byte(product.Images), &images)
+		if err != nil {
+			ctx.Logger.Error("Failed to get product images", err)
+			return nil, errors.New("failed to get product images")
+		}
+	}
+
+	for _, image := range images {
+		if _, ok := mImage[image]; !ok {
+			mImage[image] = true
+			imageUuids = append(imageUuids, image)
+		}
+	}
+
+	resourceMap, err := NewResourceService().GetResourceByUUIDList(ctx, imageUuids)
+	if err != nil {
+
+		ctx.Logger.Error("Failed to get resource list by UUID list", err)
+		return nil, errors.New("failed to get resource list by UUID list")
+	}
+
+	variants, err := NewProductVariantService().GetProductVariantByProductUUID(ctx, uuid)
+	if err != nil {
+		ctx.Logger.Error("Failed to get product variants by product uuid", err)
+		return nil, errors.New("failed to get product variants by product uuid")
+	}
+
+	variantsOptions, err := NewProductVariantService().GetProductVariantOptionByProductUUID(ctx, uuid)
+	if err != nil {
+		ctx.Logger.Error("Failed to get product variant options by product uuid", err)
+		return nil, errors.New("failed to get product variant options by product uuid")
+	}
+
+	productItems, err := p.GetProductItemByProductUUID(ctx, uuid)
+	if err != nil {
+		ctx.Logger.Error("Failed to get product item by product uuid", err)
+		return nil, errors.New("failed to get product item by product uuid")
+	}
+
+	productShow := &model.ProductShow{
+		ProductUuid:         product.Uuid,
+		ProductItemUuid:     "",
+		Name:                product.Name,
+		Description:         product.Description,
+		Images:              images,
+		Videos:              []string{},
+		ProductCategoryUuid: product.ProductCategoryUuid,
+	}
+
+	productShowItem := &model.ProductShowItem{
+		ProductShow:           *productShow,
+		ProductVariants:       variants,
+		ProductVariantsOption: variantsOptions,
+		ProductItems:          productItems,
+	}
+
+	productShowItem.Images = make([]string, 0)
+	for _, image := range images {
+		if resource, ok := resourceMap[image]; ok {
+			productShowItem.Images = append(productShowItem.Images, resource.Address)
+		}
+	}
+
+	return productShowItem, nil
+}
+
 // GetProductSkuInfo
 func (p *ProductService) GetProductSkuInfo(ctx *app.Context, uuid string) (r *model.ProductItemRes, err error) {
 	product := &model.ProductItem{}
@@ -540,6 +658,72 @@ func (p *ProductService) GetProductSkuInfo(ctx *app.Context, uuid string) (r *mo
 	return productRes, nil
 }
 
+// 根据产品uuid获取产品item列表
+func (p *ProductService) GetProductItemByProductUUID(ctx *app.Context, productUuid string) (r []*model.ProductItemRes, err error) {
+	productItemList := make([]*model.ProductItem, 0)
+	err = ctx.DB.Where("product_uuid = ?", productUuid).Find(&productItemList).Error
+	if err != nil {
+		ctx.Logger.Error("Failed to get product item by product uuid", err)
+		return nil, errors.New("failed to get product item by product uuid")
+	}
+	imageUuids := make([]string, 0)
+	mImage := make(map[string]bool, 0)
+
+	for _, product := range productItemList {
+		if product.Images != "" {
+			var images []string
+			err = json.Unmarshal([]byte(product.Images), &images)
+			if err != nil {
+				ctx.Logger.Error("Failed to get product images", err)
+				return nil, errors.New("failed to get product images")
+			}
+			for _, image := range images {
+				if _, ok := mImage[image]; !ok {
+					mImage[image] = true
+					imageUuids = append(imageUuids, image)
+				}
+			}
+		}
+	}
+
+	resourceMap, err := NewResourceService().GetResourceByUUIDList(ctx, imageUuids)
+	if err != nil {
+		ctx.Logger.Error("Failed to get resource list by UUID list", err)
+		return nil, errors.New("failed to get resource list by UUID list")
+	}
+
+	res := make([]*model.ProductItemRes, 0)
+
+	for _, product := range productItemList {
+		itemProduct := &model.ProductItemRes{
+			ProductItem: *product,
+			ImageList:   make([]string, 0),
+		}
+
+		if product.Images != "" {
+
+			var images []string
+			err = json.Unmarshal([]byte(product.Images), &images)
+			if err != nil {
+				ctx.Logger.Error("Failed to get product images", err)
+				return nil, errors.New("failed to get product images")
+			}
+
+			for _, image := range images {
+				if resource, ok := resourceMap[image]; ok {
+					itemProduct.ImageList = append(itemProduct.ImageList, resource.Address)
+				}
+
+			}
+		}
+
+		res = append(res, itemProduct)
+
+	}
+
+	return res, nil
+}
+
 // 根据产品item uuid列表获取产品item
 func (p *ProductService) GetProductItemByUUIDList(ctx *app.Context, uuidList []string) (map[string]*model.ProductItemRes, error) {
 	productItemList := make([]*model.ProductItem, 0)
@@ -595,8 +779,95 @@ func (p *ProductService) GetProductItemByUUIDList(ctx *app.Context, uuidList []s
 			}
 		}
 		res[product.Uuid] = productRes
-
 	}
 
 	return res, nil
+}
+
+// 获取前端展示得产品列表
+func (p *ProductService) GetShowProductList(ctx *app.Context, params *model.ReqProductQueryParam) (r *model.PagedResponse, err error) {
+
+	productList := make([]*model.Product, 0)
+	query := ctx.DB.Model(&model.Product{})
+
+	var total int64
+
+	if params.Name != "" {
+		query = query.Where("name like ?", "%"+params.Name+"%")
+	}
+
+	err = query.Count(&total).Error
+	if err != nil {
+		ctx.Logger.Error("Failed to get product count", err)
+		return nil, errors.New("failed to get product count")
+	}
+
+	err = query.Order("id DESC").Limit(params.PageSize).Offset(params.GetOffset()).Limit(params.PageSize).Find(&productList).Error
+
+	if err != nil {
+		ctx.Logger.Error("Failed to get product list", err)
+		return nil, errors.New("failed to get product list")
+	}
+
+	imageUuids := make([]string, 0)
+	mImage := make(map[string]bool, 0)
+	mProductImages := make(map[string][]string, 0)
+	for _, product := range productList {
+		if product.Images == "" {
+			continue
+		}
+		var images []string
+		err = json.Unmarshal([]byte(product.Images), &images)
+		if err != nil {
+			ctx.Logger.Error("Failed to get product images", err)
+			return nil, errors.New("failed to get product images")
+		}
+
+		for _, image := range images {
+			if _, ok := mImage[image]; !ok {
+				mImage[image] = true
+				imageUuids = append(imageUuids, image)
+			}
+		}
+		mProductImages[product.Uuid] = images
+	}
+
+	resourceMap, err := NewResourceService().GetResourceByUUIDList(ctx, imageUuids)
+	if err != nil {
+		ctx.Logger.Error("Failed to get resource list by UUID list", err)
+		return nil, errors.New("failed to get resource list by UUID list")
+	}
+
+	res := make([]*model.ProductShow, 0)
+
+	for _, product := range productList {
+		productRes := &model.ProductShow{
+
+			ProductUuid:         product.Uuid,
+			ProductItemUuid:     "",
+			Name:                product.Name,
+			Description:         product.Description,
+			Price:               0,
+			Discount:            0,
+			DiscountPrice:       0,
+			Stock:               0,
+			ProductCategoryUuid: product.ProductCategoryUuid,
+			Type:                "",
+		}
+
+		if images, ok := mProductImages[product.Uuid]; ok {
+			for _, image := range images {
+				if resource, ok := resourceMap[image]; ok {
+					productRes.Images = append(productRes.Images, resource.Address)
+				}
+			}
+		}
+
+		res = append(res, productRes)
+	}
+
+	return &model.PagedResponse{
+		Total: total,
+		Data:  res,
+	}, nil
 }
