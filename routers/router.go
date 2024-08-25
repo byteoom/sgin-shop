@@ -37,6 +37,8 @@ func InitRouter(ctx *app.App) {
 	InitCartRouter(ctx)
 	InitOrderRouter(ctx)
 	InitProductFrontRouter(ctx)
+	InitPaymentMethodRouter(ctx)
+
 }
 
 func InitUserRouter(ctx *app.App) {
@@ -357,6 +359,44 @@ func InitProductFrontRouter(ctx *app.App) {
 		v1.POST("/f/product/list", productController.GetShowProductList)
 		v1.POST("/f/product/info", productController.GetShowProductInfo)
 		v1.POST("/f/product/item/list", productController.GetProductItemList)
+	}
+
+	{
+		productCategory := &controller.ProductCategoryController{
+			CategoryService: &service.ProductCategoryService{},
+		}
+
+		v1.POST("/f/product_category/all", productCategory.GetAllCategory)
+	}
+
+	paymentMethodController := &controller.PaymentMethodController{
+		PaymentMethodService: &service.PaymentMethodService{},
+	}
+
+	{
+		v1.POST("/f/payment_method/all", paymentMethodController.GetPaymentMethodAll)
+	}
+
+}
+
+func InitPaymentMethodRouter(ctx *app.App) {
+	v1 := ctx.Group(ctx.Config.ApiPrefix + "/v1")
+	v1.Use(middleware.LoginCheck())
+	{
+		paymentMethodController := &controller.PaymentMethodController{
+			PaymentMethodService: &service.PaymentMethodService{},
+		}
+		v1.POST("/payment_method/create", paymentMethodController.CreatePaymentMethod)
+		v1.POST("/payment_method/update_status", paymentMethodController.UpdatePaymentMethodStatus)
+
+		// 更新配置
+		v1.POST("/payment_method/update_config", paymentMethodController.UpdatePaymentMethodConfig)
+		// 获取列表
+		v1.POST("/payment_method/list", paymentMethodController.GetPaymentMethodList)
+
+		// 获取详细信息
+		v1.POST("/payment_method/info", paymentMethodController.GetPaymentMethodInfo)
+
 	}
 }
 
