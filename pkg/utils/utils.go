@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io"
 	"math/rand"
 	"mime/multipart"
@@ -124,4 +125,23 @@ func GetFileMd5(fileinfo multipart.File) (string, error) {
 		return "", err
 	}
 	return hex.EncodeToString(md5h.Sum(nil)), nil
+}
+
+// GenerateOrderID generates a unique order ID based on the current date and time including nanoseconds.
+func GenerateOrderID() string {
+	// Set the seed for random number generation
+	rand.Seed(time.Now().UnixNano())
+
+	// Get the current date and time including nanoseconds
+	now := time.Now()
+	dateStr := now.Format("20060102150405") // Format as YYYYMMDDHHMMSS
+	nanoStr := fmt.Sprintf("%09d", now.Nanosecond())
+
+	// Generate a random 4-digit number
+	randomNum := rand.Intn(10000)
+	randomStr := fmt.Sprintf("%04d", randomNum)
+
+	// Combine the date, time, nanoseconds, and random number to form the order ID
+	orderID := dateStr + nanoStr + randomStr
+	return orderID
 }

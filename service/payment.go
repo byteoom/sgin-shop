@@ -22,7 +22,6 @@ func NewPaymentService() *PaymentService {
 // CreatePayment 创建一个新的付款记录
 func (s *PaymentService) CreatePayment(ctx *app.Context, payment *model.Payment) (*model.Payment, error) {
 	payment.Uuid = uuid.New().String()
-	payment.PaidAt = time.Now().Format(time.DateTime)
 	payment.CreatedAt = time.Now().Format(time.DateTime)
 	payment.UpdatedAt = payment.CreatedAt
 	err := ctx.DB.Create(&payment).Error

@@ -1,14 +1,20 @@
 package controller
 
 import (
+	"encoding/json"
 	"net/http"
 	"sgin/model"
 	"sgin/pkg/app"
+	paymentmethod "sgin/pkg/payment-method"
 	"sgin/service"
+
+	"github.com/google/uuid"
 )
 
 type PaymentMethodController struct {
 	PaymentMethodService *service.PaymentMethodService
+	OrderService         *service.OrderService
+	PaymentService       *service.PaymentService
 }
 
 // @Summary 创建支付方式
@@ -141,4 +147,200 @@ func (p *PaymentMethodController) GetPaymentMethodAll(ctx *app.Context) {
 		return
 	}
 	ctx.JSONSuccess(r)
+}
+
+// CreatePaypalPayment
+func (p *PaymentMethodController) CreatePaypalPayment(ctx *app.Context) {
+
+	var param model.ReqPaymentOrderCreateParam
+
+	if err := ctx.ShouldBindJSON(&param); err != nil {
+		ctx.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	userId := ctx.GetString("user_id")
+	if userId == "" {
+		ctx.Logger.Error("Unauthorized")
+		ctx.JSONError(http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	// 获取订单信息
+	order, err := p.OrderService.GetOrderByID(ctx, param.OrderID)
+	if err != nil {
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	// 获取支付方式信息
+	payment, err := p.PaymentMethodService.GetPaymentMethodInfo(ctx, "", "paypal")
+	if err != nil {
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	mdata := make(map[string]interface{})
+	err = json.Unmarshal([]byte(payment.Config), &mdata)
+	if err != nil {
+		ctx.Logger.Error("Failed to unmarshal payment config", err)
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	v, ok := mdata["production"]
+	if !ok {
+		ctx.Logger.Error("Failed to get production config")
+		ctx.JSONError(http.StatusInternalServerError, "production not found")
+		return
+	}
+
+	b, err := json.Marshal(v)
+	if err != nil {
+		ctx.Logger.Error("Failed to marshal production config", err)
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	paypal := &paymentmethod.PayPal{}
+	err = json.Unmarshal(b, paypal)
+	if err != nil {
+		ctx.Logger.Error("Failed to unmarshal paypal config", err)
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	r, err := paypal.CreateOrder(ctx, order.OrderNo, "USD", order.TotalAmount, order.OrderNo)
+	if err != nil {
+		ctx.Logger.Error("Failed to create order", err)
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	b, _ = json.Marshal(r)
+
+	paymentInfo := &model.Payment{
+		Uuid:           uuid.New().String(),
+		UserID:         userId,
+		OrderID:        order.OrderNo,
+		Amount:         order.TotalAmount,
+		Status:         model.PaymentStatusPending,
+		Method:         "paypal",
+		Channel:        "web",
+		ChannelOrderNo: r.Id,
+		ChannelStatus:  r.Status,
+		ChannelData:    string(b),
+	}
+
+	_, err = p.PaymentService.CreatePayment(ctx, paymentInfo)
+	if err != nil {
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	ctx.JSONSuccess(r)
+}
+
+// CreatePaypalPaymentSandboxTest
+func (p *PaymentMethodController) CreatePaypalPaymentSandboxTest(ctx *app.Context) {
+
+	var param model.ReqPaypalOrderCreateParam
+	if err := ctx.ShouldBindJSON(&param); err != nil {
+		ctx.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// 获取沙盒测试支付信息
+
+	payment, err := p.PaymentMethodService.GetPaymentMethodInfo(ctx, "", "paypal")
+	if err != nil {
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	mdata := make(map[string]interface{})
+	err = json.Unmarshal([]byte(payment.Config), &mdata)
+	if err != nil {
+		ctx.Logger.Error("Failed to unmarshal payment config", err)
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	v, ok := mdata["sandbox"]
+	if !ok {
+		ctx.Logger.Error("Failed to get sandbox config")
+		ctx.JSONError(http.StatusInternalServerError, "sandbox not found")
+		return
+	}
+
+	b, err := json.Marshal(v)
+	if err != nil {
+		ctx.Logger.Error("Failed to marshal sandbox config", err)
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	paypal := &paymentmethod.PayPal{}
+	err = json.Unmarshal(b, paypal)
+	if err != nil {
+		ctx.Logger.Error("Failed to unmarshal paypal config", err)
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	r, err := paypal.CreateSandBoxOrder(ctx, "USD", param.Amount, param.Name)
+	if err != nil {
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	ctx.JSONSuccess(r)
+}
+
+// GetPaypalClientID
+func (p *PaymentMethodController) GetPaypalClientID(ctx *app.Context) {
+
+	params := &model.ReqPaypalClientIdParam{}
+	if err := ctx.ShouldBindJSON(params); err != nil {
+		ctx.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	payment, err := p.PaymentMethodService.GetPaymentMethodInfo(ctx, "", "paypal")
+	if err != nil {
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	mdata := make(map[string]interface{})
+	err = json.Unmarshal([]byte(payment.Config), &mdata)
+	if err != nil {
+		ctx.Logger.Error("Failed to unmarshal payment config", err)
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	v, ok := mdata[params.Env]
+	if !ok {
+		ctx.Logger.Error("Failed to get sandbox config")
+		ctx.JSONError(http.StatusInternalServerError, "sandbox not found")
+		return
+	}
+
+	b, err := json.Marshal(v)
+	if err != nil {
+		ctx.Logger.Error("Failed to marshal sandbox config", err)
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	paypal := &paymentmethod.PayPal{}
+	err = json.Unmarshal(b, paypal)
+	if err != nil {
+		ctx.Logger.Error("Failed to unmarshal paypal config", err)
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	ctx.JSONSuccess(paypal.Clientid)
 }

@@ -1,5 +1,12 @@
 package model
 
+const (
+	PaymentStatusPending = "pending" // 待支付
+	PaymentStatusPaid    = "paid"    // 已支付
+	// 取消支付
+	PaymentStatusCanceled = "canceled"
+)
+
 // 付款信息
 type Payment struct {
 	ID   int64  `json:"id" gorm:"primary_key"`
@@ -12,7 +19,7 @@ type Payment struct {
 	// 付款金额
 	Amount float64 `json:"amount"`
 	// 付款状态  待支付 已经支付
-	Status int `json:"status"`
+	Status string `json:"status"`
 
 	// 付款方式
 	Method string `json:"method"`
@@ -22,6 +29,10 @@ type Payment struct {
 	ChannelOrderNo string `json:"channel_order_no"`
 	// 付款渠道交易号
 	ChannelTransactionNo string `json:"channel_transaction_no"`
+
+	ChannelStatus string `json:"channel_status"` // 付款渠道状态
+
+	ChannelData string `json:"channel_data"` // 付款渠道数据
 
 	// 付款时间
 	PaidAt    string `json:"paid_at"`
