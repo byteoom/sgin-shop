@@ -40,6 +40,7 @@ func InitRouter(ctx *app.App) {
 	InitPaymentMethodRouter(ctx)
 	InitPaypalRouter(ctx)
 	InitConfigurationRouter(ctx)
+	InitUserAddressRouter(ctx)
 }
 
 func InitUserRouter(ctx *app.App) {
@@ -472,6 +473,21 @@ func InitConfigurationRouter(ctx *app.App) {
 
 		// 根据category 创建配置
 		v1.POST("/configuration/category_create_map", configurationController.CreateConfigurationMapByCategory)
+	}
+}
+
+func InitUserAddressRouter(ctx *app.App) {
+	v1 := ctx.Group(ctx.Config.ApiPrefix + "/v1")
+	v1.Use(middleware.LoginCheck())
+	{
+		userAddressController := &controller.UserAddressController{
+			UserAddressService: &service.UserAddressService{},
+		}
+		v1.POST("/user_address/create", userAddressController.CreateUserAddress)
+		v1.POST("/user_address/list", userAddressController.GetUserAddressList)
+		v1.POST("/user_address/update", userAddressController.UpdateUserAddress)
+		v1.POST("/user_address/delete", userAddressController.DeleteUserAddress)
+		v1.POST("/user_address/info", userAddressController.GetUserAddressInfo)
 	}
 }
 
