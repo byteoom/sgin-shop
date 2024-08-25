@@ -42,13 +42,27 @@ func (p *ProductService) ProductCreate(ctx *app.Context, params *model.ReqProduc
 		ProductCategoryUuid: params.ProductCategoryUuid,
 		Images:              utils.ArrayToJsonString(params.Images),
 		Videos:              utils.ArrayToJsonString(params.Videos),
+		AliasName:           params.AliasName,
 		CreatedAt:           now,
 		UpdatedAt:           now,
 	}
 
 	err = ctx.DB.Transaction(func(tx *gorm.DB) error {
 
-		err := tx.Create(&product).Error
+		// 查询产品别名是否存在
+		var oldProduct model.Product
+		err := tx.Where("alias_name = ?", params.AliasName).First(&oldProduct).Error
+		if err == nil && oldProduct.Uuid != "" {
+			return errors.New("product alias name already exists")
+		}
+
+		if err != nil && err != gorm.ErrRecordNotFound {
+			ctx.Logger.Error("Failed to get product by alias name", err)
+			tx.Rollback()
+			return errors.New("failed to get product by alias name")
+		}
+
+		err = tx.Create(&product).Error
 		if err != nil {
 			ctx.Logger.Error("Failed to create product", err)
 			tx.Rollback()

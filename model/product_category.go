@@ -6,6 +6,10 @@ type ProductCategory struct {
 	Uuid string `json:"uuid" gorm:"type:varchar(36);unique_index"`
 	// 分类名称
 	Name string `json:"name" gorm:"type:varchar(100)"`
+
+	// 别名
+	AliasName string `json:"alias_name" gorm:"type:varchar(100)"`
+
 	Icon string `json:"icon" gorm:"type:varchar(100)"` // 分类图标
 	// 分类描述
 	Description string `json:"description" gorm:"type:varchar(255)"`
