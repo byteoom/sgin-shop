@@ -39,6 +39,7 @@ func InitRouter(ctx *app.App) {
 	InitProductFrontRouter(ctx)
 	InitPaymentMethodRouter(ctx)
 	InitPaypalRouter(ctx)
+	InitConfigurationRouter(ctx)
 }
 
 func InitUserRouter(ctx *app.App) {
@@ -452,6 +453,25 @@ func InitOrderRouter(ctx *app.App) {
 		v1.POST("/order/info", orderController.GetOrderInfo)
 		// 获取订单详情
 		v1.POST("/order/item/list", orderController.GetOrderItemList)
+	}
+}
+
+func InitConfigurationRouter(ctx *app.App) {
+	v1 := ctx.Group(ctx.Config.ApiPrefix + "/v1")
+	v1.Use(middleware.LoginCheck())
+	{
+		configurationController := &controller.ConfigurationController{
+			ConfigurationService: &service.ConfigurationService{},
+		}
+		v1.POST("/configuration/create", configurationController.CreateConfiguration)
+		v1.POST("/configuration/list", configurationController.GetConfigurationList)
+		v1.POST("/configuration/update", configurationController.UpdateConfiguration)
+		v1.POST("/configuration/info", configurationController.GetConfigurationInfo)
+		// 根据category获取配置列表
+		v1.POST("/configuration/category_map", configurationController.GetConfigurationMapByCategory)
+
+		// 根据category 创建配置
+		v1.POST("/configuration/category_create_map", configurationController.CreateConfigurationMapByCategory)
 	}
 }
 
