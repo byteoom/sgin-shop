@@ -89,6 +89,11 @@ func (app *App) PATCH(relativePath string, hf HandlerFunc) {
 	app.Router.PATCH(relativePath, app.Wrap(hf))
 }
 
+// any is a shortcut for router.Handle("ANY", path, handle).
+func (app *App) Any(relativePath string, hf HandlerFunc) {
+	app.Router.Any(relativePath, app.Wrap(hf))
+}
+
 func (app *App) NoRoute(hf HandlerFunc) {
 	app.Router.NoRoute(app.Wrap(hf))
 }
@@ -111,6 +116,10 @@ func (rg *AppRouterGroup) DELETE(relativePath string, hf HandlerFunc) {
 
 func (rg *AppRouterGroup) PATCH(relativePath string, hf HandlerFunc) {
 	rg.RouterGroup.PATCH(relativePath, rg.App.Wrap(hf))
+}
+
+func (rg *AppRouterGroup) Any(relativePath string, hf HandlerFunc) {
+	rg.RouterGroup.Any(relativePath, rg.App.Wrap(hf))
 }
 
 func (rg *AppRouterGroup) Group(relativePath string, handlers ...gin.HandlerFunc) *AppRouterGroup {

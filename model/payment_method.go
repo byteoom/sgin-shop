@@ -43,3 +43,17 @@ type PaymentMethodRes struct {
 	// 是否已经配置
 	IsConfig bool `json:"is_config"`
 }
+
+type ReqPaypalClientIdParam struct {
+	Env string `json:"env" binding:"required"` // 环境
+}
+
+type ReqPaymentOrderCreateParam struct {
+	OrderID string `json:"order_id" binding:"required"` // 订单ID
+}
+
+type ReqPaypalOrderCreateParam struct {
+	Name     string  `json:"productName" binding:"required"` // 名称
+	Amount   float64 `json:"amount" binding:"required"`      // 金额
+	Currency string  `json:"currency" binding:"-"`           // 货币
+}

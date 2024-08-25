@@ -38,7 +38,7 @@ func InitRouter(ctx *app.App) {
 	InitOrderRouter(ctx)
 	InitProductFrontRouter(ctx)
 	InitPaymentMethodRouter(ctx)
-
+	InitPaypalRouter(ctx)
 }
 
 func InitUserRouter(ctx *app.App) {
@@ -397,6 +397,32 @@ func InitPaymentMethodRouter(ctx *app.App) {
 		// 获取详细信息
 		v1.POST("/payment_method/info", paymentMethodController.GetPaymentMethodInfo)
 
+		// 创建paypal 支付订单
+		v1.POST("/payment_method/paypal/create", paymentMethodController.CreatePaypalPayment)
+
+		// 创建paypal 沙盒支付订单
+		//v1.POST("/payment_method/paypal/sandbox/create_test", paymentMethodController.CreatePaypalPaymentSandboxTest)
+	}
+}
+
+func InitPaypalRouter(ctx *app.App) {
+	v1 := ctx.Group(ctx.Config.ApiPrefix + "/v1")
+
+	{
+		paypalController := &controller.PaypalController{}
+		v1.Any("/paypal/return", paypalController.Return)
+		v1.Any("/paypal/cancel", paypalController.Cancel)
+	}
+
+	{
+		paymentMethodController := &controller.PaymentMethodController{
+			PaymentMethodService: &service.PaymentMethodService{},
+		}
+		// 创建paypal 沙盒支付订单
+		v1.POST("/payment_method/paypal/sandbox/create_test", paymentMethodController.CreatePaypalPaymentSandboxTest)
+
+		// 获取paypal client id
+		v1.POST("/payment_method/paypal/client_id", paymentMethodController.GetPaypalClientID)
 	}
 }
 
