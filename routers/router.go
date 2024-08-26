@@ -41,6 +41,7 @@ func InitRouter(ctx *app.App) {
 	InitPaypalRouter(ctx)
 	InitConfigurationRouter(ctx)
 	InitUserAddressRouter(ctx)
+	InitCurrencyRouter(ctx)
 }
 
 func InitUserRouter(ctx *app.App) {
@@ -488,6 +489,21 @@ func InitUserAddressRouter(ctx *app.App) {
 		v1.POST("/user_address/update", userAddressController.UpdateUserAddress)
 		v1.POST("/user_address/delete", userAddressController.DeleteUserAddress)
 		v1.POST("/user_address/info", userAddressController.GetUserAddressInfo)
+	}
+}
+
+func InitCurrencyRouter(ctx *app.App) {
+	v1 := ctx.Group(ctx.Config.ApiPrefix + "/v1")
+	v1.Use(middleware.LoginCheck())
+	{
+		currencyController := &controller.CurrencyController{
+			CurrencyService: &service.CurrencyService{},
+		}
+		v1.POST("/currency/create", currencyController.CreateCurrency)
+		v1.POST("/currency/update", currencyController.UpdateCurrency)
+		v1.POST("/currency/delete", currencyController.DeleteCurrency)
+		v1.POST("/currency/list", currencyController.GetCurrencyList)
+		v1.POST("/currency/all", currencyController.GetAllCurrency)
 	}
 }
 

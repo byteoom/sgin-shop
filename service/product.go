@@ -7,6 +7,7 @@ import (
 	"sgin/model"
 	"sgin/pkg/app"
 	"sgin/pkg/utils"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -43,6 +44,7 @@ func (p *ProductService) ProductCreate(ctx *app.Context, params *model.ReqProduc
 		Images:              utils.ArrayToJsonString(params.Images),
 		Videos:              utils.ArrayToJsonString(params.Videos),
 		AliasName:           params.AliasName,
+		ProductType:         params.ProductType,
 		CreatedAt:           now,
 		UpdatedAt:           now,
 	}
@@ -53,7 +55,7 @@ func (p *ProductService) ProductCreate(ctx *app.Context, params *model.ReqProduc
 		var oldProduct model.Product
 		err := tx.Where("alias_name = ?", params.AliasName).First(&oldProduct).Error
 		if err == nil && oldProduct.Uuid != "" {
-			return errors.New("product alias name already exists")
+			return errors.New("产品别名已存在，请重新输入")
 		}
 
 		if err != nil && err != gorm.ErrRecordNotFound {
@@ -71,7 +73,7 @@ func (p *ProductService) ProductCreate(ctx *app.Context, params *model.ReqProduc
 
 		productItemList := make([]*model.ProductItem, 0)
 
-		if len(params.Variants) > 0 {
+		if params.ProductType == model.ProductTypeVariant && len(params.Variants) > 0 { // 变体产品
 			ritemList, err := p.CreateVariants(ctx, tx, params.Variants, product, params.VariantsVals)
 			if err != nil {
 				ctx.Logger.Error("Failed to create product variants", err)
@@ -79,7 +81,9 @@ func (p *ProductService) ProductCreate(ctx *app.Context, params *model.ReqProduc
 				return errors.New("failed to create product variants")
 			}
 			productItemList = append(productItemList, ritemList...)
-		} else {
+		}
+
+		if params.ProductType == model.ProductTypeSingle { // 单个产品
 			productItem := model.ProductItem{
 				ProductBase:   productBase,
 				Uuid:          uuid.New().String(),
@@ -100,8 +104,8 @@ func (p *ProductService) ProductCreate(ctx *app.Context, params *model.ReqProduc
 			tx.Rollback()
 			return errors.New("failed to create product item")
 		}
-
 		return nil
+
 	})
 
 	if err != nil {
@@ -384,6 +388,27 @@ func (p *ProductService) GetProductByUUIDList(ctx *app.Context, uuidList []strin
 	return res, nil
 }
 
+// 根据产品uuid列表获取产品item列表
+func (p *ProductService) GetProductItemByProductUUIDList(ctx *app.Context, prodouctUuids []string) (r map[string][]*model.ProductItem, err error) {
+
+	productItemList := make([]*model.ProductItem, 0)
+	err = ctx.DB.Where("product_uuid IN (?)", prodouctUuids).Find(&productItemList).Error
+	if err != nil {
+		ctx.Logger.Error("Failed to get product item by product uuid list", err)
+		return nil, errors.New("failed to get product item by product uuid list")
+	}
+
+	mProductItem := make(map[string][]*model.ProductItem, 0)
+	for _, productItem := range productItemList {
+		if _, ok := mProductItem[productItem.ProductUuid]; !ok {
+			mProductItem[productItem.ProductUuid] = make([]*model.ProductItem, 0)
+		}
+		mProductItem[productItem.ProductUuid] = append(mProductItem[productItem.ProductUuid], productItem)
+	}
+
+	return mProductItem, nil
+}
+
 // 获取产品sku列表
 func (p *ProductService) GetProductSkuList(ctx *app.Context, params *model.ReqProductQueryParam) (r *model.PagedResponse, err error) {
 
@@ -587,12 +612,18 @@ func (p *ProductService) GetShowProductInfo(ctx *app.Context, uuid string) (r *m
 
 	productShow := &model.ProductShow{
 		ProductUuid:         product.Uuid,
-		ProductItemUuid:     "",
+		ProductType:         product.ProductType,
 		Name:                product.Name,
 		Description:         product.Description,
 		Images:              images,
 		Videos:              []string{},
 		ProductCategoryUuid: product.ProductCategoryUuid,
+	}
+
+	if len(productItems) > 0 {
+		sort.Sort(model.ProductItemResByPrice(productItems))
+		productShow.Price = productItems[0].Price
+		productShow.ProductItemUuid = productItems[0].Uuid
 	}
 
 	productShowItem := &model.ProductShowItem{
@@ -854,6 +885,18 @@ func (p *ProductService) GetShowProductList(ctx *app.Context, params *model.ReqP
 
 	res := make([]*model.ProductShow, 0)
 
+	productUuids := make([]string, 0)
+
+	for _, product := range productList {
+		productUuids = append(productUuids, product.Uuid)
+	}
+
+	productItemsMap, err := p.GetProductItemByProductUUIDList(ctx, productUuids)
+	if err != nil {
+		ctx.Logger.Error("Failed to get product item by product uuid list", err)
+		return nil, errors.New("failed to get product item by product uuid list")
+	}
+
 	for _, product := range productList {
 		productRes := &model.ProductShow{
 
@@ -867,6 +910,19 @@ func (p *ProductService) GetShowProductList(ctx *app.Context, params *model.ReqP
 			Stock:               0,
 			ProductCategoryUuid: product.ProductCategoryUuid,
 			Type:                "",
+		}
+
+		if productItems, ok := productItemsMap[product.Uuid]; ok {
+
+			if len(productItems) > 0 {
+				sort.Sort(model.ProductItemByPrice(productItems))
+				productRes.ProductItemUuid = productItems[0].Uuid
+				productRes.Price = productItems[0].Price
+				productRes.Discount = productItems[0].Discount
+				productRes.DiscountPrice = productItems[0].DiscountPrice
+				productRes.Stock = productItems[0].Stock
+				productRes.Type = productItems[0].Variants
+			}
 		}
 
 		if images, ok := mProductImages[product.Uuid]; ok {
