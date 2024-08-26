@@ -14,8 +14,8 @@ type ProductBase struct {
 }
 
 const (
-	ProductTypeSingle = "single" // 单个产品
-	ProductTypeMulti  = "multi"  // 变体产品
+	ProductTypeSingle  = "single"  // 单个产品
+	ProductTypeVariant = "variant" // 变体产品
 	// 组合产品
 	ProductTypeGroup = "group" // 组合产品
 )
@@ -72,6 +72,8 @@ type ProductShow struct {
 	ID              int64  `json:"id" gorm:"primary_key"`
 	ProductUuid     string `json:"product_uuid" gorm:"type:varchar(36);index"`
 	ProductItemUuid string `json:"product_item_uuid" gorm:"type:varchar(36);index"`
+	// 产品类型
+	ProductType string `json:"product_type" gorm:"type:varchar(100)"` // 单个产品、变体产品、组合产品
 	// 产品名称
 	Name string `json:"name" gorm:"type:varchar(100)"`
 	// 产品描述
@@ -187,11 +189,24 @@ type ProductItem struct {
 	UpdatedAt string `gorm:"autoUpdateTime" json:"updated_at"` // UpdatedAt 记录了最后更新的时间
 }
 
+type ProductItemByPrice []*ProductItem
+
+func (a ProductItemByPrice) Len() int           { return len(a) }
+func (a ProductItemByPrice) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ProductItemByPrice) Less(i, j int) bool { return a[i].Price < a[j].Price }
+
 type ProductItemRes struct {
 	ProductItem
 	ImageList   []string    `json:"image_list"`
 	ProductInfo *ProductRes `json:"product_info"`
 }
+
+// Implementing sort.Interface for []ProductItemRes based on the Price field
+type ProductItemResByPrice []*ProductItemRes
+
+func (a ProductItemResByPrice) Len() int           { return len(a) }
+func (a ProductItemResByPrice) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ProductItemResByPrice) Less(i, j int) bool { return a[i].Price < a[j].Price }
 
 type ReqProdcutItemCommonCreate struct {
 	// 产品价格

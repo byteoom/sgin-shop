@@ -43,6 +43,7 @@ func MigrateDbTable(db *gorm.DB) {
 		&PaymentMethod{},
 		&Configuration{},
 		&UserAddress{},
+		&Currency{},
 	)
 
 	// 创建默认用户
