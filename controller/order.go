@@ -18,7 +18,7 @@ type OrderController struct {
 // @Produce json
 // @Param Authorization header string true "token"
 // @Param params body model.ReqOrderQueryParam false "查询参数"
-// @Success 200 {object} model.OrderQueryResponse
+// @Success 200 {object} model.OrderListPageResponse
 // @Router /api/v1/order/list [post]
 func (c *OrderController) GetOrderList(ctx *app.Context) {
 	param := &model.ReqOrderQueryParam{}
@@ -43,7 +43,7 @@ func (c *OrderController) GetOrderList(ctx *app.Context) {
 // @Produce json
 // @Param Authorization header string true "token"
 // @Param params body model.ReqOrderCreate true "订单信息"
-// @Success 200 {object} model.Order
+// @Success 200 {object} model.OrderInfoResponse
 // @Router /api/v1/order/create [post]
 func (c *OrderController) CreateOrder(ctx *app.Context) {
 	param := &model.ReqOrderCreate{}
@@ -95,7 +95,7 @@ func (c *OrderController) CreateOrder(ctx *app.Context) {
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "token"
-// @Param params body model.ReqOrderDeleteParam true "删除参数"
+// @Param params body model.ReqUuidParam true "删除参数"
 // @Success 200 {object} app.Response
 // @Router /api/v1/order/delete [post]
 func (c *OrderController) DeleteOrder(ctx *app.Context) {
@@ -120,8 +120,8 @@ func (c *OrderController) DeleteOrder(ctx *app.Context) {
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "token"
-// @Param params body model.ReqOrderInfoParam true "查询参数"
-// @Success 200 {object} model.Order
+// @Param params body model.ReqUuidParam true "查询参数"
+// @Success 200 {object} model.OrderInfoResponse
 // @Router /api/v1/order/info [post]
 func (c *OrderController) GetOrderInfo(ctx *app.Context) {
 	param := &model.ReqUuidParam{}
@@ -140,7 +140,14 @@ func (c *OrderController) GetOrderInfo(ctx *app.Context) {
 }
 
 // GetOrderItemList
-
+// @Summary 获取订单商品列表
+// @Tags 订单
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "token"
+// @Param params body model.ReqUuidParam true "查询参数"
+// @Success 200 {object} model.OrderItemListResponse
+// @Router /api/v1/order/item/list [post]
 func (c *OrderController) GetOrderItemList(ctx *app.Context) {
 	param := &model.ReqUuidParam{}
 	if err := ctx.ShouldBindJSON(param); err != nil {

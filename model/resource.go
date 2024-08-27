@@ -46,8 +46,8 @@ type ReqResourceCreateFolder struct {
 
 // 移动资源
 type ReqResourceMove struct {
-	UuidList   []string `json:"uuid_list" form:"uuid_list"`
-	ParentUuid string   `json:"parent_uuid" form:"parent_uuid"`
+	UuidList   []string `json:"uuid_list" form:"uuid_list"`     // 资源uuid
+	ParentUuid string   `json:"parent_uuid" form:"parent_uuid"` // 父级资源
 }
 
 type ReqResourceQueryParam struct {

@@ -25,7 +25,7 @@ type ResourceController struct {
 // @Produce json
 // @Param Authorization header string true "token"
 // @Param params body model.ReqResourceQueryParam false "查询参数"
-// @Success 200 {object} model.ResourceQueryResponse
+// @Success 200 {object} []model.ResourceRes
 // @Router /api/v1/resource/list [post]
 func (c *ResourceController) GetResourceList(ctx *app.Context) {
 	param := &model.ReqResourceQueryParam{}
@@ -43,14 +43,15 @@ func (c *ResourceController) GetResourceList(ctx *app.Context) {
 	ctx.JSONSuccess(resources)
 }
 
-// 创建资源
+// CreateResource 创建资源
 // @Summary 创建资源
 // @Tags 资源
-// @Accept json
+// @Accept multipart/form-data
 // @Produce json
 // @Param Authorization header string true "token"
-// @Param params body model.Resource true "资源信息"
-// @Success 200 {object} model.ResourceResponse
+// @Param path formData string false "目标路径"
+// @Param files formData file true "上传文件的数组，支持多文件上传"
+// @Success 200 {array} model.Resource "返回上传的资源信息数组"
 // @Router /api/v1/resource/create [post]
 func (c *ResourceController) CreateResource(ctx *app.Context) {
 
@@ -155,7 +156,7 @@ func (c *ResourceController) CreateResource(ctx *app.Context) {
 // @Produce json
 // @Param Authorization header string true "token"
 // @Param params body model.Resource true "资源信息"
-// @Success 200 {object} model.ResourceResponse
+// @Success 200 {object} model.Resource
 // @Router /api/v1/resource/update [post]
 func (c *ResourceController) UpdateResource(ctx *app.Context) {
 	param := &model.Resource{}
@@ -179,8 +180,8 @@ func (c *ResourceController) UpdateResource(ctx *app.Context) {
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "token"
-// @Param params body model.ReqResourceMoveParam true "移动参数"
-// @Success 200 {object} app.Response
+// @Param params body model.ReqResourceMove true "移动参数"
+// @Success 200 {string} string "ok"
 // @Router /api/v1/resource/move [post]
 func (c *ResourceController) MoveResource(ctx *app.Context) {
 	param := &model.ReqResourceMove{}
@@ -225,7 +226,7 @@ func (c *ResourceController) MoveResource(ctx *app.Context) {
 // @Produce json
 // @Param Authorization header string true "token"
 // @Param params body model.ReqResourceDeleteParam true "删除参数"
-// @Success 200 {object} app.Response
+// @Success 200 {string} string "ok"
 // @Router /api/v1/resource/delete [post]
 func (c *ResourceController) DeleteResource(ctx *app.Context) {
 	param := &model.ReqResourceDeleteParam{}
@@ -285,7 +286,7 @@ func (c *ResourceController) DeleteResource(ctx *app.Context) {
 // @Produce json
 // @Param Authorization header string true "token"
 // @Success 200 {object} []model.ResourceRes
-// @Router /api/v1/resource/folders [get]
+// @Router /api/v1/resource/folder_list [post]
 func (c *ResourceController) GetFolderList(ctx *app.Context) {
 	folders, err := c.ResourceService.GetFolderList(ctx)
 	if err != nil {
@@ -297,7 +298,14 @@ func (c *ResourceController) GetFolderList(ctx *app.Context) {
 }
 
 // 创建文件夹
-
+// @Summary 创建文件夹
+// @Tags 资源
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "token"
+// @Param params body model.ReqResourceCreateFolder true "创建文件夹参数"
+// @Success 200 {string} string "ok"
+// @Router /api/v1/resource/create_folder [post]
 func (c *ResourceController) CreateFolder(ctx *app.Context) {
 	param := &model.ReqResourceCreateFolder{}
 	if err := ctx.ShouldBindJSON(param); err != nil {

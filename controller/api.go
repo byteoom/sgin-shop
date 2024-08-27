@@ -59,7 +59,7 @@ func (a *APIController) UpdateAPI(ctx *app.Context) {
 // @Accept  json
 // @Produce  json
 // @Param param body model.ReqUuidParam true "API UUID"
-// @Success 200 {string} string	"ok"
+// @Success 200 {object} model.StringDataResponse	"ok"
 // @Router /api/v1/api/delete [post]
 func (a *APIController) DeleteAPI(ctx *app.Context) {
 	var param model.ReqUuidParam

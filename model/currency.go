@@ -13,6 +13,12 @@ type Currency struct {
 	Status int    `json:"status"`                                    // 状态 1:启用 2:禁用
 }
 
+type ReqCurrencyCreate struct {
+	Name   string `json:"name" binding:"required"`   // 货币名称
+	Code   string `json:"code" binding:"required"`   // 货币代码
+	Symbol string `json:"symbol" binding:"required"` // 货币符号
+}
+
 type ReqCurrencyQueryParam struct {
 	Name string `json:"name"` // 货币名称
 	Pagination

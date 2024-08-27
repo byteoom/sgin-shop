@@ -11,55 +11,13 @@ type SysOpLogController struct {
 	SysOpLogService *service.SysOpLogService
 }
 
-// @Summary 创建操作日志
-// @Description 创建操作日志
-// @Tags 操作日志
-// @Accept  json
-// @Produce  json
-// @Param param body model.SysOpLog true "操作日志参数"
-// @Success 200 {object} model.SysOpLog
-// @Router /api/v1/sysoplog/create [post]
-func (s *SysOpLogController) CreateSysOpLog(ctx *app.Context) {
-	var param model.SysOpLog
-	if err := ctx.ShouldBindJSON(&param); err != nil {
-		ctx.JSONError(http.StatusBadRequest, err.Error())
-		return
-	}
-	if err := s.SysOpLogService.CreateSysOpLog(ctx, &param); err != nil {
-		ctx.JSONError(http.StatusInternalServerError, err.Error())
-		return
-	}
-	ctx.JSONSuccess(param)
-}
-
-// @Summary 更新操作日志
-// @Description 更新操作日志
-// @Tags 操作日志
-// @Accept  json
-// @Produce  json
-// @Param param body model.SysOpLog true "操作日志参数"
-// @Success 200 {object} model.SysOpLog
-// @Router /api/v1/sysoplog/update [post]
-func (s *SysOpLogController) UpdateSysOpLog(ctx *app.Context) {
-	var param model.SysOpLog
-	if err := ctx.ShouldBindJSON(&param); err != nil {
-		ctx.JSONError(http.StatusBadRequest, err.Error())
-		return
-	}
-	if err := s.SysOpLogService.UpdateSysOpLog(ctx, &param); err != nil {
-		ctx.JSONError(http.StatusInternalServerError, err.Error())
-		return
-	}
-	ctx.JSONSuccess(param)
-}
-
 // @Summary 删除操作日志
 // @Description 删除操作日志
 // @Tags 操作日志
 // @Accept  json
 // @Produce  json
 // @Param param body model.ReqIdParam true "操作日志ID"
-// @Success 200 {string} string "ok"
+// @Success 200  {object} model.StringDataResponse "ok"
 // @Router /api/v1/sysoplog/delete [post]
 func (s *SysOpLogController) DeleteSysOpLog(ctx *app.Context) {
 	var param model.ReqIdParam

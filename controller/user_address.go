@@ -59,7 +59,7 @@ func (u *UserAddressController) UpdateUserAddress(ctx *app.Context) {
 // @Accept  json
 // @Produce  json
 // @Param param body model.ReqUuidParam true "用户地址 UUID"
-// @Success 200 {string} string "ok"
+// @Success 200  {object} model.StringDataResponse "ok"
 // @Router /api/v1/user_address/delete [post]
 func (u *UserAddressController) DeleteUserAddress(ctx *app.Context) {
 	var param model.ReqUuidParam
@@ -101,7 +101,6 @@ func (u *UserAddressController) GetUserAddressInfo(ctx *app.Context) {
 // @Tags 用户地址
 // @Accept  json
 // @Produce  json
-// @Param param body model.ReqUserAddressQueryParam true "查询参数"
 // @Success 200 {object} model.PagedResponse
 // @Router /api/v1/user_address/list [post]
 func (u *UserAddressController) GetUserAddressList(ctx *app.Context) {

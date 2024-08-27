@@ -59,7 +59,7 @@ func (s *ServerController) UpdateServer(ctx *app.Context) {
 // @Accept  json
 // @Produce  json
 // @Param param body model.ReqUuidParam true "服务uuid"
-// @Success 200 {string} string	"ok"
+// @Success 200 {object} model.StringDataResponse	"ok"
 // @Router /api/v1/server/delete [post]
 func (s *ServerController) DeleteServer(ctx *app.Context) {
 	var param model.ReqUuidParam

@@ -138,7 +138,7 @@ func (s *ConfigurationService) UpdateConfiguration(ctx *app.Context, config *mod
 }
 
 func (s *ConfigurationService) DeleteConfiguration(ctx *app.Context, id int) error {
-	err := ctx.DB.Model(&model.Configuration{}).Where("id = ?", id).Update("is_deleted", 1).Error
+	err := ctx.DB.Where("id = ?", id).Delete(&model.Configuration{}).Error
 	if err != nil {
 		ctx.Logger.Error("Failed to delete configuration", err)
 		return errors.New("failed to delete configuration")

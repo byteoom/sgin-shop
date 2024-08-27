@@ -271,6 +271,43 @@ func (s *OrderService) DeleteOrder(ctx *app.Context, uuid string) error {
 	return nil
 }
 
+// 根据订单号列表获取订单物品列表
+func (s *OrderService) GetOrderItemsByOrderNoList(ctx *app.Context, orderNos []string) (map[string][]*model.OrderItemRes, error) {
+	orderItems := make([]*model.OrderItem, 0)
+	err := ctx.DB.Where("order_no in (?)", orderNos).Find(&orderItems).Error
+	if err != nil {
+		ctx.Logger.Error("Failed to get order items by order no list", err)
+		return nil, errors.New("failed to get order items by order no list")
+	}
+
+	productItemUuids := make([]string, 0)
+	for _, item := range orderItems {
+		productItemUuids = append(productItemUuids, item.ProductItemID)
+	}
+
+	productItemMap, err := NewProductService().GetProductItemByUUIDList(ctx, productItemUuids)
+	if err != nil {
+		return nil, err
+	}
+
+	orderItemResMap := make(map[string][]*model.OrderItemRes)
+	for _, item := range orderItems {
+		itemRes := &model.OrderItemRes{
+			OrderItem: *item,
+		}
+		if productItem, ok := productItemMap[item.ProductItemID]; ok {
+			itemRes.ProductItem = productItem
+		}
+
+		if _, ok := orderItemResMap[item.OrderID]; !ok {
+			orderItemResMap[item.OrderID] = make([]*model.OrderItemRes, 0)
+		}
+		orderItemResMap[item.OrderID] = append(orderItemResMap[item.OrderID], itemRes)
+	}
+
+	return orderItemResMap, nil
+}
+
 // GetOrderList retrieves a list of orders based on query parameters
 func (s *OrderService) GetOrderList(ctx *app.Context, params *model.ReqOrderQueryParam) (r *model.PagedResponse, err error) {
 	var (
@@ -303,8 +340,29 @@ func (s *OrderService) GetOrderList(ctx *app.Context, params *model.ReqOrderQuer
 		return nil, errors.New("failed to get order list")
 	}
 
+	orderNos := make([]string, 0)
+	for _, order := range orders {
+		orderNos = append(orderNos, order.OrderNo)
+	}
+
+	orderItemResMap, err := s.GetOrderItemsByOrderNoList(ctx, orderNos)
+	if err != nil {
+		return nil, err
+	}
+
+	res := make([]*model.OrderRes, 0)
+	for _, order := range orders {
+		orderRes := &model.OrderRes{
+			Order: *order,
+		}
+		if orderItems, ok := orderItemResMap[order.OrderNo]; ok {
+			orderRes.Items = orderItems
+		}
+		res = append(res, orderRes)
+	}
+
 	return &model.PagedResponse{
 		Total: total,
-		Data:  orders,
+		Data:  res,
 	}, nil
 }

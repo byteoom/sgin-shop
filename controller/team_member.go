@@ -44,7 +44,7 @@ func (t *TeamMemberController) CreateTeamMember(ctx *app.Context) {
 // @Accept  json
 // @Produce  json
 // @Param param body model.ReqUuidParam true "团队成员UUID"
-// @Success 200 {object} app.Response
+// @Success 200  {object} model.StringDataResponse
 // @Router /api/v1/team/member/delete [post]
 func (t *TeamMemberController) DeleteTeamMember(ctx *app.Context) {
 	var param model.ReqUuidParam
