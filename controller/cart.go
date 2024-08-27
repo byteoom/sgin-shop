@@ -18,7 +18,7 @@ type CartController struct {
 // @Produce json
 // @Param Authorization header string true "token"
 // @Param params body model.ReqCartQueryParam false "查询参数"
-// @Success 200 {object} model.CartQueryResponse
+// @Success 200 {object} model.Cart
 // @Router /api/v1/cart/list [post]
 func (c *CartController) GetCartList(ctx *app.Context) {
 	param := &model.ReqCartQueryParam{}
@@ -43,7 +43,7 @@ func (c *CartController) GetCartList(ctx *app.Context) {
 // @Produce json
 // @Param Authorization header string true "token"
 // @Param params body model.Cart true "购物车信息"
-// @Success 200 {object} model.CartPageResponse
+// @Success 200 {object} model.Cart
 // @Router /api/v1/cart/create [post]
 func (c *CartController) CreateCart(ctx *app.Context) {
 	param := &model.Cart{}
@@ -68,7 +68,7 @@ func (c *CartController) CreateCart(ctx *app.Context) {
 // @Produce json
 // @Param Authorization header string true "token"
 // @Param params body model.Cart true "购物车信息"
-// @Success 200 {object} model.CartPageResponse
+// @Success 200 {object} model.Cart
 // @Router /api/v1/cart/update [post]
 func (c *CartController) UpdateCart(ctx *app.Context) {
 	param := &model.Cart{}
@@ -93,7 +93,7 @@ func (c *CartController) UpdateCart(ctx *app.Context) {
 // @Produce json
 // @Param Authorization header string true "token"
 // @Param params body model.ReqUuidParam true "删除参数"
-// @Success 200 {object} app.Response
+// @Success 200 {string} string "ok"
 // @Router /api/v1/cart/delete [post]
 func (c *CartController) DeleteCart(ctx *app.Context) {
 	param := &model.ReqUuidParam{}

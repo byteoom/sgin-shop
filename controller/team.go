@@ -59,7 +59,7 @@ func (t *TeamController) UpdateTeam(ctx *app.Context) {
 // @Accept  json
 // @Produce  json
 // @Param param body model.ReqUuidParam true "团队UUID"
-// @Success 200 {string} string	"ok"
+// @Success 200 {object} model.StringDataResponse	"ok"
 // @Router /api/v1/team/delete [post]
 func (t *TeamController) DeleteTeam(ctx *app.Context) {
 	var param model.ReqUuidParam

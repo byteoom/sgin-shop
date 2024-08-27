@@ -55,6 +55,11 @@ type Order struct {
 	UpdatedAt string `gorm:"autoUpdateTime" json:"updated_at"` // UpdatedAt 记录了最后更新的时间
 }
 
+type OrderRes struct {
+	Order
+	Items []*OrderItemRes `json:"items"` // 订单商品
+}
+
 // 收货人信息
 type OrderReceiver struct {
 	// 收货人姓名

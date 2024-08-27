@@ -17,6 +17,11 @@ type BaseResponse struct {
 	Message string `json:"message"`  // 提示信息
 }
 
+type StringDataResponse struct {
+	BaseResponse
+	Data string `json:"data"`
+}
+
 type UserInfoResponse struct {
 	BaseResponse
 	Data User `json:"data"`
@@ -116,4 +121,87 @@ type TeamQueryResponse struct {
 type TeamMemberInfoResponse struct {
 	BaseResponse
 	Data TeamMember `json:"data"`
+}
+
+type ProductListPageResponse struct {
+	BasePageResponse
+	Data []ProductRes `json:"data"`
+}
+
+// ProductItemRes
+type ProductItemListPageResponse struct {
+	BasePageResponse
+	Data []ProductItemRes `json:"data"`
+}
+
+// ProductItemRes
+type ProductItemInfoResponse struct {
+	BaseResponse
+	Data ProductItemRes `json:"data"`
+}
+
+// ProductShow list
+type ProductShowListPageResponse struct {
+	BasePageResponse
+	Data []ProductShow `json:"data"`
+}
+
+// ProductShowItem
+type ProductShowItemInfoResponse struct {
+	BaseResponse
+	Data ProductShowItem `json:"data"`
+}
+
+// Configuration
+type ConfigurationInfoResponse struct {
+	BaseResponse
+	Data Configuration `json:"data"`
+}
+
+// Configuration page list
+type ConfigurationPageResponse struct {
+	BasePageResponse
+	Data []Configuration `json:"data"`
+}
+
+// map[string]string
+type ConfigurationMapResponse struct {
+	BaseResponse
+	Data map[string]string `json:"data"`
+}
+
+// Currency
+type CurrencyInfoResponse struct {
+	BaseResponse
+	Data Currency `json:"data"`
+}
+
+// Currency page list
+type CurrencyPageResponse struct {
+	BasePageResponse
+	Data []Currency `json:"data"`
+}
+
+// Currency list
+type CurrencyListResponse struct {
+	BaseResponse
+	Data []Currency `json:"data"`
+}
+
+// OrderRes Page
+type OrderListPageResponse struct {
+	BasePageResponse
+	Data []OrderRes `json:"data"`
+}
+
+// OrderItemRes List
+type OrderItemListResponse struct {
+	BaseResponse
+	Data []OrderItemRes `json:"data"`
+}
+
+// Order
+type OrderInfoResponse struct {
+	BaseResponse
+	Data Order `json:"data"`
 }

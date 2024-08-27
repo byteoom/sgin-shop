@@ -93,7 +93,7 @@ func (c *MenuController) UpdateMenu(ctx *app.Context) {
 // @Produce json
 // @Param Authorization header string true "token"
 // @Param params body model.ReqMenuDeleteParam true "删除参数"
-// @Success 200 {object} app.Response
+// @Success 200 {object} model.StringDataResponse "ok"
 // @Router /api/v1/menu/delete [post]
 func (c *MenuController) DeleteMenu(ctx *app.Context) {
 	param := &model.ReqMenuDeleteParam{}

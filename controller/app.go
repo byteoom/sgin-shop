@@ -86,7 +86,7 @@ func (ac *AppController) UpdateApp(c *app.Context) {
 // @Accept  json
 // @Produce  json
 // @Param params body model.ReqUuidParam true "Delete app"
-// @Success 200 {object} app.Response "Successfully delete user data"
+// @Success 200 {object} model.StringDataResponse "Successfully delete user data"
 // @Router /api/v1/app/delete [post]
 func (ac *AppController) DeleteApp(c *app.Context) {
 	var app model.ReqUuidParam

@@ -68,7 +68,7 @@ func (c *RoleController) CreateRole(ctx *app.Context) {
 // @Produce json
 // @Param Authorization header string true "token"
 // @Param params body model.Role true "角色信息"
-// @Success 200 {object} app.Response "Successfully updated role"
+// @Success 200 {object} model.StringDataResponse "Successfully updated role"
 // @Router /api/v1/role/update [post]
 func (c *RoleController) UpdateRole(ctx *app.Context) {
 	param := &model.Role{}
@@ -93,7 +93,7 @@ func (c *RoleController) UpdateRole(ctx *app.Context) {
 // @Produce json
 // @Param Authorization header string true "token"
 // @Param params body model.Role true "角色ID"
-// @Success 200 {object} app.Response "Successfully deleted role"
+// @Success 200 {object} model.StringDataResponse "Successfully deleted role"
 // @Router /api/v1/role/delete [post]
 func (c *RoleController) DeleteRole(ctx *app.Context) {
 	param := &model.Role{}

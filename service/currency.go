@@ -53,8 +53,8 @@ func (s *CurrencyService) UpdateCurrency(ctx *app.Context, currency *model.Curre
 	return nil
 }
 
-func (s *CurrencyService) DeleteCurrency(ctx *app.Context, uuid string) error {
-	err := ctx.DB.Where("uuid = ?", uuid).Delete(&model.Currency{}).Error
+func (s *CurrencyService) DeleteCurrency(ctx *app.Context, uuidList []string) error {
+	err := ctx.DB.Where("uuid IN ?", uuidList).Delete(&model.Currency{}).Error
 	if err != nil {
 		ctx.Logger.Error("Failed to delete currency", err)
 		return errors.New("failed to delete currency")

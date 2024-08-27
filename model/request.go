@@ -13,9 +13,9 @@ func (p *Pagination) GetOffset() int {
 
 // 角色查询参数
 type ReqRoleQueryParam struct {
-	TeamUuid string `json:"team_uuid"`
-	Name     string `form:"name"`
-	IsActive bool   `form:"is_active"`
+	TeamUuid string `json:"team_uuid"` // 团队uuid
+	Name     string `form:"name"`      // 角色名称
+	IsActive bool   `form:"is_active"` // 是否激活 true:激活 false:未激活
 	Pagination
 }
 
@@ -45,12 +45,12 @@ type ReqMenuQueryParam struct {
 
 // 删除用户删除参数
 type ReqUserDeleteParam struct {
-	Uuid string `json:"uuid" binding:"required"`
+	Uuid string `json:"uuid" binding:"required"` // 用户uuid
 }
 
 // 删除菜单参数
 type ReqMenuDeleteParam struct {
-	Uuid string `json:"uuid" binding:"required"`
+	Uuid string `json:"uuid" binding:"required"` // 菜单uuid
 }
 
 type ReqApiQueryParam struct {

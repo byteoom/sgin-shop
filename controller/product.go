@@ -12,6 +12,14 @@ type ProductController struct {
 }
 
 // ProductCreate 创建产品
+// @Summary 创建产品
+// @Description 创建产品
+// @Tags 产品
+// @Accept  json
+// @Produce  json
+// @Param param body model.ReqProductCreate true "产品参数"
+// @Success 200 {object} model.StringDataResponse  "Created product"
+// @Router /api/v1/product/create [post]
 func (p *ProductController) ProductCreate(ctx *app.Context) {
 	// 创建参数
 	params := &model.ReqProductCreate{}
@@ -32,6 +40,14 @@ func (p *ProductController) ProductCreate(ctx *app.Context) {
 }
 
 // GetProductList 获取产品列表
+// @Summary 获取产品列表
+// @Description 获取产品列表
+// @Tags 产品
+// @Accept  json
+// @Produce  json
+// @Param  param body model.ReqProductQueryParam true "产品参数"
+// @Success 200 {object} model.ProductListPageResponse "产品列表"
+// @Router /api/v1/product/list [post]
 func (p *ProductController) GetProductList(ctx *app.Context) {
 	// 创建参数
 	params := &model.ReqProductQueryParam{}
@@ -52,6 +68,14 @@ func (p *ProductController) GetProductList(ctx *app.Context) {
 }
 
 // DeleteProduct
+// @Summary 删除产品
+// @Description 删除产品
+// @Tags 产品
+// @Accept  json
+// @Produce  json
+// @Param param body model.ReqProductDeleteParam true "产品UUID"
+// @Success 200 {object} model.StringDataResponse "Deleted product"
+// @Router /api/v1/product/delete [post]
 func (p *ProductController) DeleteProduct(ctx *app.Context) {
 	// 创建参数
 	params := &model.ReqProductDeleteParam{}
@@ -72,6 +96,14 @@ func (p *ProductController) DeleteProduct(ctx *app.Context) {
 }
 
 // GetProductInfo
+// @Summary 获取产品信息
+// @Description 获取产品信息
+// @Tags 产品
+// @Accept  json
+// @Produce  json
+// @Param param body model.ReqUuidParam true "产品UUID"
+// @Success 200 {object} model.ProductRes "产品信息"
+// @Router /api/v1/product/info [post]
 func (p *ProductController) GetProductInfo(ctx *app.Context) {
 	// 创建参数
 	params := &model.ReqUuidParam{}
@@ -92,6 +124,14 @@ func (p *ProductController) GetProductInfo(ctx *app.Context) {
 }
 
 // GetShowProductInfo
+// @Summary 获取产品前端展示信息
+// @Description 获取产品前端展示信息
+// @Tags 产品
+// @Accept  json
+// @Produce  json
+// @Param param body model.ReqUuidParam true "产品UUID"
+// @Success 200 {object} model.ProductShowItemInfoResponse "产品信息"
+// @Router /api/v1/f/product/info [post]
 func (p *ProductController) GetShowProductInfo(ctx *app.Context) {
 	// 创建参数
 	params := &model.ReqUuidParam{}
@@ -112,6 +152,14 @@ func (p *ProductController) GetShowProductInfo(ctx *app.Context) {
 }
 
 // GetShowProductList
+// @Summary 获取产品前端展示列表
+// @Description 获取产品前端展示列表
+// @Tags 产品
+// @Accept  json
+// @Produce  json
+// @Param param body model.ReqProductQueryParam true "产品参数"
+// @Success 200 {object} model.ProductShowListPageResponse "产品列表"
+// @Router /api/v1/f/product/list [post]
 func (p *ProductController) GetShowProductList(ctx *app.Context) {
 
 	// 创建参数
@@ -135,6 +183,14 @@ func (p *ProductController) GetShowProductList(ctx *app.Context) {
 }
 
 // GetProductItemList
+// @Summary 获取产品SKU列表
+// @Description 获取产品SKU列表
+// @Tags 产品
+// @Accept  json
+// @Produce  json
+// @Param param body model.ReqProductQueryParam true "产品参数"
+// @Success 200 {object} model.ProductItemListPageResponse "产品SKU列表"
+// @Router /api/v1/product/item/list [post]
 func (p *ProductController) GetProductItemList(ctx *app.Context) {
 	// 创建参数
 	params := &model.ReqProductQueryParam{}
@@ -155,6 +211,14 @@ func (p *ProductController) GetProductItemList(ctx *app.Context) {
 }
 
 // GetProductItemInfo
+// @Summary 获取产品SKU信息
+// @Description 获取产品SKU信息
+// @Tags 产品
+// @Accept  json
+// @Produce  json
+// @Param param body model.ReqUuidParam true "产品SKU UUID"
+// @Success 200 {object} model.ProductItemInfoResponse "产品SKU信息"
+// @Router /api/v1/product/item/info [post]
 func (p *ProductController) GetProductItemInfo(ctx *app.Context) {
 	// 创建参数
 	params := &model.ReqUuidParam{}
@@ -175,6 +239,14 @@ func (p *ProductController) GetProductItemInfo(ctx *app.Context) {
 }
 
 // DeleteProductItem
+// @Summary 删除产品SKU
+// @Description 删除产品SKU
+// @Tags 产品
+// @Accept  json
+// @Produce  json
+// @Param param body model.ReqProductDeleteParam true "产品SKU UUID"
+// @Success 200 {object} model.StringDataResponse "Deleted product"
+// @Router /api/v1/product/item/delete [post]
 func (p *ProductController) DeleteProductItem(ctx *app.Context) {
 	// 创建参数
 	params := &model.ReqProductDeleteParam{}

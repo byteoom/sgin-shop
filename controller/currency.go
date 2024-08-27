@@ -16,8 +16,8 @@ type CurrencyController struct {
 // @Tags 币种
 // @Accept  json
 // @Produce  json
-// @Param param body model.Currency true "币种参数"
-// @Success 200 {object} model.Currency
+// @Param param body model.ReqCurrencyCreate true "币种参数"
+// @Success 200 {object} model.CurrencyInfoResponse
 // @Router /api/v1/currency/create [post]
 func (c *CurrencyController) CreateCurrency(ctx *app.Context) {
 	var param model.Currency
@@ -38,7 +38,7 @@ func (c *CurrencyController) CreateCurrency(ctx *app.Context) {
 // @Accept  json
 // @Produce  json
 // @Param param body model.Currency true "币种参数"
-// @Success 200 {object} model.Currency
+// @Success 200 {object} model.CurrencyInfoResponse
 // @Router /api/v1/currency/update [post]
 func (c *CurrencyController) UpdateCurrency(ctx *app.Context) {
 	var param model.Currency
@@ -59,7 +59,7 @@ func (c *CurrencyController) UpdateCurrency(ctx *app.Context) {
 // @Accept  json
 // @Produce  json
 // @Param param body model.ReqUuidParam true "币种UUID"
-// @Success 200 {string} string	"ok"
+// @Success 200 {object} model.StringDataResponse "ok"
 // @Router /api/v1/currency/delete [post]
 func (c *CurrencyController) DeleteCurrency(ctx *app.Context) {
 	var param model.ReqUuidParam
@@ -67,7 +67,22 @@ func (c *CurrencyController) DeleteCurrency(ctx *app.Context) {
 		ctx.JSONError(http.StatusBadRequest, err.Error())
 		return
 	}
-	if err := c.CurrencyService.DeleteCurrency(ctx, param.Uuid); err != nil {
+
+	uuids := make([]string, 0)
+	if param.Uuid != "" {
+		uuids = append(uuids, param.Uuid)
+	}
+
+	if len(param.Uuids) > 0 {
+		uuids = append(uuids, param.Uuids...)
+	}
+
+	if len(uuids) == 0 {
+		ctx.JSONError(http.StatusBadRequest, "uuid os uuids is required")
+		return
+	}
+
+	if err := c.CurrencyService.DeleteCurrency(ctx, uuids); err != nil {
 		ctx.JSONError(http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -80,7 +95,7 @@ func (c *CurrencyController) DeleteCurrency(ctx *app.Context) {
 // @Accept  json
 // @Produce  json
 // @Param param body model.ReqUuidParam true "币种UUID"
-// @Success 200 {object} model.Currency
+// @Success 200 {object} model.CurrencyInfoResponse
 // @Router /api/v1/currency/info [post]
 func (c *CurrencyController) GetCurrencyInfo(ctx *app.Context) {
 	var param model.ReqUuidParam
@@ -102,7 +117,7 @@ func (c *CurrencyController) GetCurrencyInfo(ctx *app.Context) {
 // @Accept  json
 // @Produce  json
 // @Param param body model.ReqCurrencyQueryParam true "查询参数"
-// @Success 200 {object} model.CurrencyQueryResponse
+// @Success 200 {object} model.CurrencyPageResponse
 // @Router /api/v1/currency/list [post]
 func (c *CurrencyController) GetCurrencyList(ctx *app.Context) {
 	param := &model.ReqCurrencyQueryParam{}
@@ -125,8 +140,8 @@ func (c *CurrencyController) GetCurrencyList(ctx *app.Context) {
 // @Tags 币种
 // @Accept  json
 // @Produce  json
-// @Success 200 {array} model.Currency
-// @Router /api/v1/currency/all [get]
+// @Success 200 {array} model.CurrencyListResponse
+// @Router /api/v1/currency/all [post]
 func (c *CurrencyController) GetAllCurrency(ctx *app.Context) {
 	currencies, err := c.CurrencyService.GetAvailableCurrencyList(ctx)
 	if err != nil {

@@ -18,16 +18,6 @@ func NewPaymentController(paymentService *service.PaymentService) *PaymentContro
 	}
 }
 
-// CreatePayment 创建一个新的付款记录
-// @Summary 创建付款记录
-// @Tags 付款
-// @Accept json
-// @Produce json
-// @Param payment body model.Payment true "创建付款记录"
-// @Success 200 {object} model.Payment
-// @Failure 400 {string} string "错误信息"
-// @Failure 500 {string} string "内部服务器错误"
-// @Router /payments [post]
 func (c *PaymentController) CreatePayment(ctx *app.Context) {
 	var payment model.Payment
 	if err := ctx.ShouldBindJSON(&payment); err != nil {
@@ -42,16 +32,6 @@ func (c *PaymentController) CreatePayment(ctx *app.Context) {
 	ctx.JSONSuccess(newPayment)
 }
 
-// GetPaymentByUUID 根据UUID获取付款记录
-// @Summary 根据UUID获取付款记录
-// @Tags 付款
-// @Accept json
-// @Produce json
-// @Param uuid path string true "付款记录的UUID"
-// @Success 200 {object} model.Payment
-// @Failure 404 {string} string "未找到"
-// @Failure 500 {string} string "内部服务器错误"
-// @Router /payments/{uuid} [get]
 func (c *PaymentController) GetPaymentByUUID(ctx *app.Context) {
 	param := &model.Payment{}
 	if err := ctx.ShouldBindJSON(param); err != nil {
@@ -70,19 +50,6 @@ func (c *PaymentController) GetPaymentByUUID(ctx *app.Context) {
 	ctx.JSONSuccess(payment)
 }
 
-// UpdatePayment 更新付款记录
-// @Summary 更新付款记录
-// @Tags 付款
-// @Accept json
-// @Produce json
-// @Param uuid path string true "付款记录的UUID"
-// @Param payment body model.Payment true "更新的付款记录"
-// @Success 200 {object} model.Payment
-// @Failure 404 {string} string "未找到"
-// @Failure 500 {string} string "内部服务器错误"
-// @Router /payments/{uuid} [put]
-// UpdatePayment 更新付款记录
-// ... 其他注释保持不变 ...
 func (c *PaymentController) UpdatePayment(ctx *app.Context) {
 	param := &model.Payment{}
 	if err := ctx.ShouldBindJSON(&param); err != nil {
@@ -99,16 +66,6 @@ func (c *PaymentController) UpdatePayment(ctx *app.Context) {
 	ctx.JSONSuccess(param)
 }
 
-// DeletePayment 删除付款记录
-// @Summary 删除付款记录
-// @Tags 付款
-// @Accept json
-// @Produce json
-// @Param uuid path string true "付款记录的UUID"
-// @Success 200 {string} string "ok"
-// @Failure 404 {string} string "未找到"
-// @Failure 500 {string} string "内部服务器错误"
-// @Router /payments/{uuid} [delete]
 func (c *PaymentController) DeletePayment(ctx *app.Context) {
 	param := &model.Payment{}
 	if err := ctx.ShouldBindJSON(param); err != nil {
@@ -124,18 +81,6 @@ func (c *PaymentController) DeletePayment(ctx *app.Context) {
 	ctx.JSONSuccess(param)
 }
 
-// GetPaymentList 获取付款记录列表
-// @Summary 获取付款记录列表
-// @Tags 付款
-// @Accept json
-// @Produce json
-// @Param page query int 0 "页码"
-// @Param page_size query int 10 "每页记录数"
-// @Param user_id query int 0 "用户ID过滤"
-// @Param order_id query int 0 "订单ID过滤"
-// @Success 200 {object} model.PagedResponse
-// @Failure 500 {string} string "内部服务器错误"
-// @Router /payments/list [get]
 func (c *PaymentController) GetPaymentList(ctx *app.Context) {
 	var params model.ReqPaymentQueryParam
 	if err := ctx.ShouldBindJSON(&params); err != nil {

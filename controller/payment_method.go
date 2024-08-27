@@ -101,7 +101,7 @@ func (p *PaymentMethodController) DeletePaymentMethod(ctx *app.Context) {
 // @Accept  json
 // @Produce  json
 // @Param param body model.ReqPaymentMethodQueryParam false "支付方式查询参数"
-// @Success 200 {object} model.PaymentMethodQueryResponse
+// @Success 200 {object} app.Response
 // @Router /api/v1/payment-method/list [post]
 func (p *PaymentMethodController) GetPaymentMethodList(ctx *app.Context) {
 	var param model.ReqPaymentMethodQueryParam

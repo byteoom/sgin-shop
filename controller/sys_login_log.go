@@ -18,7 +18,7 @@ type SysLoginLogController struct {
 // @Produce  json
 // @Param id path uint true "登录日志ID"
 // @Success 200 {object} model.SysLoginLog
-// @Router /api/v1/loginlog/{id} [get]
+// @Router /api/v1/loginlog/{id} [post]
 func (l *SysLoginLogController) GetLoginLog(ctx *app.Context) {
 	// id, err := ctx.ParamUint("id")
 	// if err != nil {
@@ -32,27 +32,6 @@ func (l *SysLoginLogController) GetLoginLog(ctx *app.Context) {
 	// 	return
 	// }
 	// ctx.JSONSuccess(loginLog)
-}
-
-// @Summary 更新登录日志
-// @Description 更新登录日志
-// @Tags 登录日志
-// @Accept  json
-// @Produce  json
-// @Param param body model.SysLoginLog true "登录日志参数"
-// @Success 200 {object} model.SysLoginLog
-// @Router /api/v1/loginlog/update [post]
-func (l *SysLoginLogController) UpdateLoginLog(ctx *app.Context) {
-	var param model.SysLoginLog
-	if err := ctx.ShouldBindJSON(&param); err != nil {
-		ctx.JSONError(http.StatusBadRequest, err.Error())
-		return
-	}
-	if err := l.LoginLogService.UpdateLoginLog(ctx, &param); err != nil {
-		ctx.JSONError(http.StatusInternalServerError, err.Error())
-		return
-	}
-	ctx.JSONSuccess(param)
 }
 
 // @Summary 获取登录日志列表

@@ -52,8 +52,18 @@ type Configuration struct {
 	UpdatedAt string `json:"updated_at" gorm:"autoUpdateTime;comment:'更新时间'"` // 更新时间
 }
 
+type ReqConfigCreate struct {
+	Category string `json:"category" binding:"required"` // 配置分类
+	Name     string `json:"name" binding:"required"`     // 配置名称
+	Value    string `json:"value" binding:"required"`    // 配置值
+}
+
 type ReqConfigQueryParam struct {
-	Name     string `json:"name"`
-	Category string `json:"category"`
+	Name     string `json:"name"`     // 配置名称
+	Category string `json:"category"` // 配置分类
 	Pagination
+}
+
+type ReqConfigCategoryParam struct {
+	Category string `json:"category" binding:"required"` // 配置分类
 }
