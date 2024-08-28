@@ -1,10 +1,10 @@
 package model
 
 type Pagination struct {
-	PageSize  int    `form:"pageSize" json:"pageSize"`
-	Current   int    `form:"current" json:"current"`
-	StartTime string `json:"start_time"`
-	EndTime   string `json:"end_time"`
+	PageSize  int    `form:"pageSize" json:"pageSize"` // 每页显示个数
+	Current   int    `form:"current" json:"current"`   // 当前页码
+	StartTime string `json:"start_time"`               // 开始时间
+	EndTime   string `json:"end_time"`                 // 结束时间
 }
 
 func (p *Pagination) GetOffset() int {

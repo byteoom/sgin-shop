@@ -45,9 +45,9 @@ const (
 
 type Configuration struct {
 	Id        int    `json:"id"`
-	Category  string `json:"category"`
-	Name      string `json:"name"`
-	Value     string `json:"value"`
+	Category  string `json:"category"`                                        // 配置分类
+	Name      string `json:"name"`                                            // 配置名称
+	Value     string `json:"value"`                                           // 配置值
 	CreatedAt string `json:"created_at" gorm:"autoCreateTime;comment:'创建时间'"` // 创建时间
 	UpdatedAt string `json:"updated_at" gorm:"autoUpdateTime;comment:'更新时间'"` // 更新时间
 }

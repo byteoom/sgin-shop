@@ -111,21 +111,21 @@ type OrderItem struct {
 
 type OrderItemRes struct {
 	OrderItem
-	ProductItem *ProductItemRes `json:"product_item"`
+	ProductItem *ProductItemRes `json:"product_item"` // 商品信息
 }
 
 type ReqOrderCreate struct {
-	UserId   string        `json:"user_id"`
-	Receiver OrderReceiver `json:"receiver"`
+	UserId   string        `json:"user_id"`  // 用户ID
+	Receiver OrderReceiver `json:"receiver"` // 收货人信息
 
-	Items []ReqOrderItemCreate `json:"items"`
+	Items []ReqOrderItemCreate `json:"items"` // 订单商品列表
 
 	CartUuids []string `json:"cart_uuids"` // 购物车ID列表
 }
 
 type ReqOrderItemCreate struct {
-	ProductItemID string `json:"product_item_id"`
-	Quantity      int    `json:"quantity"`
+	ProductItemID string `json:"product_item_id"` // 商品ID
+	Quantity      int    `json:"quantity"`        // 商品数量
 }
 
 type ReqOrderQueryParam struct {

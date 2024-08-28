@@ -60,7 +60,14 @@ func (t *TeamMemberController) DeleteTeamMember(ctx *app.Context) {
 }
 
 // 查询团队成员列表
-
+// @Summary 查询团队成员列表
+// @Description 查询团队成员列表
+// @Tags 团队成员
+// @Accept  json
+// @Produce  json
+// @Param param body model.ReqTeamMemberQueryParam true "团队成员查询参数"
+// @Success 200 {object} model.TeamMemberPageResponse
+// @Router /api/v1/team/member/list [post]
 func (t *TeamMemberController) GetTeamMemberList(ctx *app.Context) {
 	var param model.ReqTeamMemberQueryParam
 	if err := ctx.ShouldBindJSON(&param); err != nil {
