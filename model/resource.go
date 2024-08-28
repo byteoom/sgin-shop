@@ -61,9 +61,9 @@ type ReqResourceQueryParam struct {
 
 type ResourceRes struct {
 	Resource
-	Children []*ResourceRes `json:"children"`
+	Children []*ResourceRes `json:"children"` // 子资源
 }
 
 type ReqResourceDeleteParam struct {
-	Uuid string `json:"uuid" form:"uuid"`
+	Uuid string `json:"uuid" form:"uuid"` // 资源uuid
 }

@@ -205,3 +205,75 @@ type OrderInfoResponse struct {
 	BaseResponse
 	Data Order `json:"data"`
 }
+
+// PermissionMenu
+type PermissionMenuInfoResponse struct {
+	BaseResponse
+	Data PermissionMenu `json:"data"`
+}
+
+// PermissionMenu page list
+type PermissionMenuPageResponse struct {
+	BasePageResponse
+	Data []PermissionMenu `json:"data"`
+}
+
+// PermissionMenu list
+type PermissionMenuListResponse struct {
+	BaseResponse
+	Data []PermissionMenu `json:"data"`
+}
+
+// PermissionMenuCreate
+type PermissionMenuCreateResponse struct {
+	BaseResponse
+	Data ReqPermissionMenuCreate `json:"data"`
+}
+
+// UserPermission
+type UserPermissionInfoResponse struct {
+	BaseResponse
+	Data UserPermission `json:"data"`
+}
+
+// UserPermission list
+type UserPermissionListResponse struct {
+	BaseResponse
+	Data []UserPermission `json:"data"`
+}
+
+// UserPermission page list
+type UserPermissionPageResponse struct {
+	BasePageResponse
+	Data []UserPermission `json:"data"`
+}
+
+// Permission
+type PermissionInfoResponse struct {
+	BaseResponse
+	Data Permission `json:"data"`
+}
+
+// PermissionListResponse
+type PermissionListResponse struct {
+	BasePageResponse
+	Data []Permission `json:"data"`
+}
+
+// ProductCategory list
+type ProductCategoryListResponse struct {
+	BaseResponse
+	Data []ProductCategory `json:"data"`
+}
+
+// ProductCategory
+type ProductCategoryInfoResponse struct {
+	BaseResponse
+	Data ProductCategory `json:"data"`
+}
+
+// TeamMember page list
+type TeamMemberPageResponse struct {
+	BasePageResponse
+	Data []User `json:"data"`
+}

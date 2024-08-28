@@ -63,8 +63,8 @@ type Product struct {
 
 type ProductRes struct {
 	Product
-	ImageList       []string        `json:"image_list"`
-	ProductCategory ProductCategory `json:"product_category"`
+	ImageList       []string        `json:"image_list"`       // 产品图片地址
+	ProductCategory ProductCategory `json:"product_category"` // 产品分类
 }
 
 // 前端展示的产品
@@ -197,8 +197,8 @@ func (a ProductItemByPrice) Less(i, j int) bool { return a[i].Price < a[j].Price
 
 type ProductItemRes struct {
 	ProductItem
-	ImageList   []string    `json:"image_list"`
-	ProductInfo *ProductRes `json:"product_info"`
+	ImageList   []string    `json:"image_list"`   // 产品图片地址
+	ProductInfo *ProductRes `json:"product_info"` // 产品信息
 }
 
 // Implementing sort.Interface for []ProductItemRes based on the Price field
