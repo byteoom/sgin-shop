@@ -6,6 +6,7 @@ release*
 sgin
 cmd/cmd.exe
 *.log
+*.log.gz
 cmd/cmd
 vendor
 docs

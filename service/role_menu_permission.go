@@ -62,3 +62,14 @@ func (s *RoleMenuPermissionService) DeleteRoleMenuPermission(ctx *app.Context, u
 
 	return nil
 }
+
+// 根据角色UUID获取角色菜单权限
+func (s *RoleMenuPermissionService) GetRoleMenuPermissionByRoleUUID(ctx *app.Context, roleUUID string) ([]*model.RoleMenuPermission, error) {
+	rmps := make([]*model.RoleMenuPermission, 0)
+	err := ctx.DB.Where("role_uuid = ?", roleUUID).Find(&rmps).Error
+	if err != nil {
+		ctx.Logger.Error("Failed to get role menu permission by role UUID", err)
+		return nil, errors.New("failed to get role menu permission by role UUID")
+	}
+	return rmps, nil
+}

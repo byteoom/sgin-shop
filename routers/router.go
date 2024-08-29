@@ -61,6 +61,15 @@ func InitUserRouter(ctx *app.App) {
 		v1.GET("/user/myinfo", userController.GetMyInfo)
 		v1.POST("/user/avatar", userController.UpdateAvatar)
 		v1.POST("/user/all", userController.GetAllUsers)
+		// 获取用户加入的团队列表
+		v1.POST("/user/team/list", userController.GetUserTeamList)
+
+		// 获取用户自己加入的团队列表
+		v1.POST("/user/teams", userController.GetMyTeamList)
+		// 切换用户当前团队
+		v1.POST("/user/team/switch", userController.SwitchTeam)
+		// 获取用户菜单
+		v1.POST("/user/menus", userController.GetUserMenu)
 
 	}
 
@@ -350,6 +359,11 @@ func InitProductRouter(ctx *app.App) {
 		v1.POST("/product/item/list", productController.GetProductItemList)
 		v1.POST("/product/item/delete", productController.DeleteProductItem)
 		v1.POST("/product/item/info", productController.GetProductItemInfo)
+
+		// 更新产品
+		v1.POST("/product/update", productController.UpdateProduct)
+		// 更新产品SKU
+		v1.POST("/product/item/update", productController.UpdateProductItem)
 	}
 }
 

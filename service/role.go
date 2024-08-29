@@ -36,7 +36,7 @@ func (s *RoleService) GetRoleByUUID(ctx *app.Context, uuid string) (*model.Role,
 	err := ctx.DB.Where("uuid = ?", uuid).First(role).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("role not found")
+			return nil, err
 		}
 		ctx.Logger.Error("Failed to get role by UUID", err)
 		return nil, errors.New("failed to get role by UUID")
@@ -93,4 +93,19 @@ func (s *RoleService) GetRoleList(ctx *app.Context, param *model.ReqRoleQueryPar
 		PageSize: param.PageSize,
 		Total:    total,
 	}, nil
+}
+
+// 根据Uuids 列表获取角色列表
+func (s *RoleService) GetRoleMapByUuids(ctx *app.Context, uuids []string) (map[string]*model.Role, error) {
+	roles := make([]*model.Role, 0)
+	err := ctx.DB.Where("uuid in (?)", uuids).Find(&roles).Error
+	if err != nil {
+		ctx.Logger.Error("Failed to get role list by uuids", err)
+		return nil, errors.New("failed to get role list by uuids")
+	}
+	roleMap := make(map[string]*model.Role)
+	for _, role := range roles {
+		roleMap[role.Uuid] = role
+	}
+	return roleMap, nil
 }

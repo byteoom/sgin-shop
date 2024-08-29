@@ -95,3 +95,33 @@ func (s *MenuService) GetMenuList(ctx *app.Context, params *model.ReqMenuQueryPa
 		Data:  menus,
 	}, nil
 }
+
+// GetUserMenu
+func (s *MenuService) GetUserMenu(ctx *app.Context, userUUID string) ([]*model.Menu, error) {
+
+	// 获取用户当前所在团队
+	teamMemeber, err := NewTeamMemberService().GetUserCurrentTeam(ctx, userUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	rolePermissionMenus, err := NewRoleMenuPermissionService().GetRoleMenuPermissionByRoleUUID(ctx, teamMemeber.Role)
+
+	if err != nil {
+		return nil, err
+	}
+
+	menusUuids := make([]string, 0)
+	for _, rolePermissionMenu := range rolePermissionMenus {
+		menusUuids = append(menusUuids, rolePermissionMenu.MenuUUID)
+	}
+
+	// 根据uuids获取菜单
+	menus := make([]*model.Menu, 0)
+	err = ctx.DB.Where("uuid in (?)", menusUuids).Find(&menus).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return menus, nil
+}

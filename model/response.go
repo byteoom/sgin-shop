@@ -275,5 +275,17 @@ type ProductCategoryInfoResponse struct {
 // TeamMember page list
 type TeamMemberPageResponse struct {
 	BasePageResponse
-	Data []User `json:"data"`
+	Data []TeamUserRes `json:"data"`
+}
+
+// Team List Response
+type TeamListResponse struct {
+	BaseResponse
+	Data []UserTeamRes `json:"data"`
+}
+
+// MenuListResponse
+type MenuListResponse struct {
+	BaseResponse
+	Data []Menu `json:"data"`
 }

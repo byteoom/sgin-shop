@@ -941,3 +941,119 @@ func (p *ProductService) GetShowProductList(ctx *app.Context, params *model.ReqP
 		Data:  res,
 	}, nil
 }
+
+// UpdateProduct
+func (p *ProductService) UpdateProduct(ctx *app.Context, params *model.ReqProductUpdate) (err error) {
+
+	product := &model.Product{}
+	err = ctx.DB.Where("uuid = ?", params.Uuid).First(&product).Error
+	if err != nil {
+		ctx.Logger.Error("Failed to get product by UUID", err)
+		return errors.New("failed to get product by UUID")
+	}
+
+	if params.Name != "" {
+		product.Name = params.Name
+	}
+
+	if params.Description != "" {
+		product.Description = params.Description
+	}
+
+	if params.ProductCategoryUuid != "" {
+		product.ProductCategoryUuid = params.ProductCategoryUuid
+	}
+
+	if len(params.Images) > 0 {
+		product.Images = utils.ArrayToJsonString(params.Images)
+	}
+
+	if len(params.Videos) > 0 {
+		product.Videos = utils.ArrayToJsonString(params.Videos)
+	}
+
+	if params.AliasName != "" {
+		product.AliasName = params.AliasName
+	}
+
+	if params.ProductStatus != "" {
+		product.Status = params.ProductStatus
+	}
+
+	if params.StockWarning > 0 {
+		product.StockWarning = params.StockWarning
+	}
+
+	product.StockWarningSell = params.StockWarningSell
+
+	if params.Weight > 0 {
+		product.Weight = params.Weight
+	}
+
+	if params.Length > 0 {
+		product.Length = params.Length
+	}
+
+	if params.Height > 0 {
+		product.Height = params.Height
+	}
+
+	if params.Weight > 0 {
+		product.Weight = params.Weight
+	}
+
+	if params.Unit != "" {
+		product.Unit = params.Unit
+	}
+
+	product.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+
+	err = ctx.DB.Where("uuid = ?", params.Uuid).Updates(&product).Error
+	if err != nil {
+		ctx.Logger.Error("Failed to update product", err)
+		return errors.New("failed to update product")
+	}
+
+	return nil
+}
+
+// UpdateProductSku
+func (p *ProductService) UpdateProductSku(ctx *app.Context, params *model.ReqProductItemUpdate) (err error) {
+
+	productItem := &model.ProductItem{}
+	err = ctx.DB.Where("uuid = ?", params.Uuid).First(&productItem).Error
+	if err != nil {
+		ctx.Logger.Error("Failed to get product item by UUID", err)
+		return errors.New("failed to get product item by UUID")
+	}
+
+	if params.Price > 0 {
+		productItem.Price = params.Price
+	}
+
+	if params.Discount > 0 {
+		productItem.Discount = params.Discount
+	}
+
+	if params.DiscountPrice > 0 {
+		productItem.DiscountPrice = params.DiscountPrice
+	}
+
+	if params.Stock > 0 {
+		productItem.Stock = params.Stock
+	}
+
+	if params.Description != "" {
+		productItem.Description = params.Description
+	}
+
+	productItem.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+
+	err = ctx.DB.Where("uuid = ?", params.Uuid).Updates(&productItem).Error
+	if err != nil {
+		ctx.Logger.Error("Failed to update product item", err)
+		return errors.New("failed to update product item")
+	}
+
+	return nil
+}
