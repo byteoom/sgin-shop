@@ -197,7 +197,7 @@ func (s *OrderService) GetOrderByID(ctx *app.Context, uuidStr string) (*model.Or
 // 根据订单号获取订单商品列表信息
 func (s *OrderService) GetOrderItemsByOrderNo(ctx *app.Context, orderNo string) ([]*model.OrderItemRes, error) {
 	orderItems := make([]*model.OrderItem, 0)
-	err := ctx.DB.Where("order_no = ?", orderNo).Find(&orderItems).Error
+	err := ctx.DB.Where("order_id = ?", orderNo).Find(&orderItems).Error
 	if err != nil {
 		ctx.Logger.Error("Failed to get order items by order no", err)
 		return nil, errors.New("failed to get order items by order no")
@@ -274,7 +274,7 @@ func (s *OrderService) DeleteOrder(ctx *app.Context, uuid string) error {
 // 根据订单号列表获取订单物品列表
 func (s *OrderService) GetOrderItemsByOrderNoList(ctx *app.Context, orderNos []string) (map[string][]*model.OrderItemRes, error) {
 	orderItems := make([]*model.OrderItem, 0)
-	err := ctx.DB.Where("order_no in (?)", orderNos).Find(&orderItems).Error
+	err := ctx.DB.Where("order_id in (?)", orderNos).Find(&orderItems).Error
 	if err != nil {
 		ctx.Logger.Error("Failed to get order items by order no list", err)
 		return nil, errors.New("failed to get order items by order no list")

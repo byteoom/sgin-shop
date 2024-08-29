@@ -265,3 +265,59 @@ func (p *ProductController) DeleteProductItem(ctx *app.Context) {
 	}
 	ctx.JSONSuccess("Deleted product")
 }
+
+// UpdateProduct
+// @Summary 更新产品
+// @Description 更新产品
+// @Tags 产品
+// @Accept  json
+// @Produce  json
+// @Param param body model.ReqProductUpdate true "产品参数"
+// @Success 200 {object} model.StringDataResponse "Updated product"
+// @Router /api/v1/product/update [post]
+func (p *ProductController) UpdateProduct(ctx *app.Context) {
+	// 创建参数
+	params := &model.ReqProductUpdate{}
+	// 绑定参数
+	if err := ctx.Bind(params); err != nil {
+		ctx.Logger.Error("Failed to bind params", err)
+		ctx.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+	// 更新产品
+	err := p.ProductService.UpdateProduct(ctx, params)
+	if err != nil {
+		ctx.Logger.Error("Failed to update product", err)
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+	ctx.JSONSuccess("Updated product")
+}
+
+// UpdateProductItem
+// @Summary 更新产品SKU
+// @Description 更新产品SKU
+// @Tags 产品
+// @Accept  json
+// @Produce  json
+// @Param param body model.ReqProductItemUpdate true "产品SKU参数"
+// @Success 200 {object} model.StringDataResponse "Updated product"
+// @Router /api/v1/product/item/update [post]
+func (p *ProductController) UpdateProductItem(ctx *app.Context) {
+	// 创建参数
+	params := &model.ReqProductItemUpdate{}
+	// 绑定参数
+	if err := ctx.Bind(params); err != nil {
+		ctx.Logger.Error("Failed to bind params", err)
+		ctx.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+	// 更新产品
+	err := p.ProductService.UpdateProductSku(ctx, params)
+	if err != nil {
+		ctx.Logger.Error("Failed to update product", err)
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+	ctx.JSONSuccess("Updated product")
+}

@@ -15,3 +15,14 @@ type Team struct {
 	IsActive  bool      `gorm:"default:true" json:"is_active"`         // IsActive 标识团队是否是活跃的
 	Creater   string    `gorm:"type:char(36)" json:"creater"`          // Creater 标识团队的创建者
 }
+
+type UserTeamRes struct {
+	Team
+	Role          *Role `json:"role"`            // Role 是用户在团队中的角色
+	IsCurrentTeam bool  `json:"is_current_team"` // IsCurrentTeam 标识用户当前选择这个团队
+}
+
+type TeamUserRes struct {
+	User
+	Role *Role `json:"role"` // Role 是用户在团队中的角色
+}

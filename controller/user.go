@@ -10,7 +10,9 @@ import (
 
 // UserController handles the operations related to User.
 type UserController struct {
-	Service *service.UserService
+	Service           *service.UserService
+	TeamMemberService *service.TeamMemberService
+	MenuService       *service.MenuService
 }
 
 // CreateUser creates a new User.
@@ -212,4 +214,108 @@ func (uc *UserController) GetAllUsers(c *app.Context) {
 		return
 	}
 	c.JSONSuccess(users)
+}
+
+// GetUserTeamList
+// @Summary 获取用户团队列表
+// @Tags 用户
+// @Accept json
+// @Produce json
+// @Param params body model.ReqUserTeamQueryParam true "获取用户团队列表参数"
+// @Success 200 {object} model.TeamListResponse
+// @Router /api/v1/user/team/list [post]
+func (uc *UserController) GetUserTeamList(c *app.Context) {
+	param := &model.ReqUserTeamQueryParam{}
+	if err := c.ShouldBindJSON(param); err != nil {
+		c.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	teams, err := uc.TeamMemberService.GetUserTeamList(c, param)
+	if err != nil {
+		c.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSONSuccess(teams)
+}
+
+// GetMyTeamList
+// @Summary 获取我的团队列表
+// @Tags 用户
+// @Accept json
+// @Produce json
+// @Success 200 {object} model.TeamListResponse
+// @Router /api/v1/user/teams [post]
+func (uc *UserController) GetMyTeamList(c *app.Context) {
+	userId := c.GetString("user_id")
+
+	if userId == "" {
+		c.JSONError(http.StatusBadRequest, "user_id is required")
+		return
+
+	}
+
+	param := &model.ReqUserTeamQueryParam{
+		UserUuid: userId,
+	}
+	teams, err := uc.TeamMemberService.GetUserTeamList(c, param)
+	if err != nil {
+		c.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSONSuccess(teams)
+}
+
+// SwitchTeam
+// @Summary 切换团队
+// @Tags 用户
+// @Accept json
+// @Produce json
+// @Param params body model.ReqSwitchTeamParam true "切换团队参数"
+// @Success 200 {object} model.StringDataResponse "ok"
+// @Router /api/v1/user/team/switch [post]
+func (uc *UserController) SwitchTeam(c *app.Context) {
+	param := &model.ReqSwitchTeamParam{}
+	if err := c.ShouldBindJSON(param); err != nil {
+		c.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+	userId := c.GetString("user_id")
+	if userId == "" {
+		c.JSONError(http.StatusBadRequest, "user_id is required")
+		return
+	}
+
+	err := uc.TeamMemberService.SwitchTeam(c, userId, param)
+	if err != nil {
+		c.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSONSuccess("ok")
+}
+
+// GetUserMenu
+// @Summary 获取用户菜单
+// @Tags 用户
+// @Accept json
+// @Produce json
+// @Success 200 {object} model.MenuListResponse
+// @Router /api/v1/user/menus [post]
+func (uc *UserController) GetUserMenu(c *app.Context) {
+	userId := c.GetString("user_id")
+	if userId == "" {
+		c.JSONError(http.StatusBadRequest, "user_id is required")
+		return
+	}
+
+	menus, err := uc.MenuService.GetUserMenu(c, userId)
+	if err != nil {
+		c.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSONSuccess(menus)
 }

@@ -182,3 +182,13 @@ type ReqProductSKUQueryParam struct {
 type ReqProductDeleteParam struct {
 	UUids []string `json:"uuids"`
 }
+
+// ReqUserTeamQueryParam
+type ReqUserTeamQueryParam struct {
+	UserUuid string `json:"user_uuid"`
+}
+
+// ReqSwitchTeamParam
+type ReqSwitchTeamParam struct {
+	TeamUuid string `json:"team_uuid"`
+}

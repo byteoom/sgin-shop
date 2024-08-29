@@ -219,6 +219,67 @@ type ReqProdcutItemCommonCreate struct {
 	Stock int64 `json:"stock" binding:"-"`
 }
 
+type ReqProductUpdate struct {
+	Uuid string `json:"uuid" binding:"required"` // 产品UUID
+	// 产品名称
+	Name string `json:"name" binding:"required"`
+	// 产品别名
+	AliasName string `json:"alias_name"  binding:"required"` // 产品别名
+	// 产品分类
+	ProductCategoryUuid string `json:"product_category_uuid" binding:"-"`
+	// 产品描述
+	Description string `json:"description" binding:"-"`
+	// 产品视频
+	Videos []string `json:"videos" binding:"-"`
+
+	Images []string `json:"images" binding:"-"`
+
+	// 产品上架状态
+	// 上架、下架、售罄
+	ProductStatus string `json:"product_status" binding:"-"` // 产品状态 上架、下架、售罄
+
+	// 预警库存
+	StockWarning int64 `json:"stock_warning" binding:"-"`
+
+	// 低于警戒库存是否可售
+	StockWarningSell bool `json:"stock_warning_sell" binding:"-"`
+
+	// 长度
+	Length float64 `json:"length" binding:"-"` // 长度
+	// 宽度
+	Width float64 `json:"width" binding:"-"` // 宽度
+
+	// 高度
+	Height float64 `json:"height" binding:"-"` // 高度
+
+	// 重量
+	Weight float64 `json:"weight" binding:"-"` // 重量
+
+	Unit string `json:"unit" binding:"-"` // 单位 例如: 个、件、套、箱
+
+}
+
+// ReqProductItemUpdate
+type ReqProductItemUpdate struct {
+	Uuid string `json:"uuid" binding:"required"` // 产品SKU UUID
+	// 产品名称
+	Name string `json:"name" binding:"required"`
+	// 产品描述
+	Description string `json:"description" binding:"required"`
+	// 产品价格
+	Price float64 `json:"price" binding:"required"`
+	// 产品折扣
+	Discount float64 `json:"discount" binding:"required"`
+	// 产品折扣价
+	DiscountPrice float64 `json:"discount_price" binding:"required"`
+	// 产品库存
+	Stock int64 `json:"stock" binding:"required"`
+	// 产品图片
+	Images []string `json:"images" binding:"required"`
+	// 产品视频
+	Videos []string `json:"videos" binding:"required"`
+}
+
 // 产品创建
 type ReqProductCreate struct {
 	ReqProdcutItemCommonCreate
