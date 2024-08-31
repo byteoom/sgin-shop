@@ -45,3 +45,12 @@ type ReqPaymentQueryParam struct {
 	OrderID string `json:"order_id"` // 订单ID，用于过滤
 	Pagination
 }
+
+type PaypalOrderDetail struct {
+	Id                    string `json:"id,omitempty"`
+	Status                string `json:"status,omitempty"` // CREATED、SAVED、APPROVED、VOIDED、COMPLETED、PAYER_ACTION_REQUIRED
+	Intent                string `json:"intent,omitempty"`
+	ProcessingInstruction string `json:"processing_instruction,omitempty"`
+	CreateTime            string `json:"create_time,omitempty"`
+	UpdateTime            string `json:"update_time,omitempty"`
+}

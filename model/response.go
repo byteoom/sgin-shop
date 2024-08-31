@@ -289,3 +289,15 @@ type MenuListResponse struct {
 	BaseResponse
 	Data []Menu `json:"data"`
 }
+
+// PaypalOrderDetail
+type PaypalOrderDetailResponse struct {
+	BaseResponse
+	Data PaypalOrderDetail `json:"data"`
+}
+
+// PaymentMethod list
+type PaymentMethodListResponse struct {
+	BaseResponse
+	Data []PaymentMethod `json:"data"`
+}

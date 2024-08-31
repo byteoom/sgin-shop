@@ -140,6 +140,13 @@ func (p *PaymentMethodController) GetPaymentMethodInfo(ctx *app.Context) {
 }
 
 // GetPaymentMethodAll
+// @Summary 获取所有可用支付方式
+// @Description 获取所有可用支付方式
+// @Tags 支付方式
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} model.PaymentMethod
+// @Router /api/v1/f/payment_method/all [post]
 func (p *PaymentMethodController) GetPaymentMethodAll(ctx *app.Context) {
 	r, err := p.PaymentMethodService.GetAvailablePaymentMethodList(ctx)
 	if err != nil {
@@ -150,6 +157,14 @@ func (p *PaymentMethodController) GetPaymentMethodAll(ctx *app.Context) {
 }
 
 // CreatePaypalPayment
+// @Summary 创建Paypal支付
+// @Description 创建Paypal支付
+// @Tags 支付方式
+// @Accept  json
+// @Produce  json
+// @Param param body model.ReqPaymentOrderCreateParam true "支付订单参数"
+// @Success 200 {object} model.PaypalOrderDetailResponse
+// @Router /api/v1/payment_method/paypal/create [post]
 func (p *PaymentMethodController) CreatePaypalPayment(ctx *app.Context) {
 
 	var param model.ReqPaymentOrderCreateParam

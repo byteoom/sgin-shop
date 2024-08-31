@@ -102,6 +102,17 @@ func (s *CartService) UpdateCart(ctx *app.Context, cart *model.Cart) error {
 	return nil
 }
 
+// UpdateCartItemCount updates the quantity of a cart item
+func (s *CartService) UpdateCartItemCount(ctx *app.Context, uuid string, quantity int) error {
+	err := ctx.DB.Model(&model.Cart{}).Where("uuid = ?", uuid).Update("quantity", quantity).Error
+	if err != nil {
+		ctx.Logger.Error("Failed to update cart item count", err)
+		return errors.New("failed to update cart item count")
+	}
+
+	return nil
+}
+
 // DeleteCart deletes a cart item by its UUID
 func (s *CartService) DeleteCart(ctx *app.Context, uuid string) error {
 	err := ctx.DB.Where("uuid = ?", uuid).Delete(&model.Cart{}).Error

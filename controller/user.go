@@ -13,6 +13,7 @@ type UserController struct {
 	Service           *service.UserService
 	TeamMemberService *service.TeamMemberService
 	MenuService       *service.MenuService
+	OrderService      *service.OrderService
 }
 
 // CreateUser creates a new User.
@@ -318,4 +319,34 @@ func (uc *UserController) GetUserMenu(c *app.Context) {
 	}
 
 	c.JSONSuccess(menus)
+}
+
+// GetUserOrderList
+// @Summary 获取用户订单列表
+// @Tags 用户
+// @Accept json
+// @Produce json
+// @Param params body model.ReqOrderQueryParam true "获取用户订单列表参数"
+// @Success 200 {object} model.OrderListPageResponse
+// @Router /api/v1/user/orders [post]
+func (uc *UserController) GetUserOrderList(c *app.Context) {
+	param := &model.ReqOrderQueryParam{}
+	if err := c.ShouldBindJSON(param); err != nil {
+		c.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	userId := c.GetString("user_id")
+	if userId == "" {
+		c.JSONError(http.StatusBadRequest, "user_id is required")
+		return
+	}
+
+	orders, err := uc.OrderService.GetOrderList(c, param)
+	if err != nil {
+		c.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSONSuccess(orders)
 }

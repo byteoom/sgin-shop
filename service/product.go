@@ -781,8 +781,10 @@ func (p *ProductService) GetProductItemByUUIDList(ctx *app.Context, uuidList []s
 	imageUuids := make([]string, 0)
 	mImage := make(map[string]bool, 0)
 	mProductImages := make(map[string][]string, 0)
+	productUuids := make([]string, 0)
 
 	for _, product := range productItemList {
+		productUuids = append(productUuids, product.ProductUuid)
 
 		if product.Images != "" {
 			var images []string
@@ -808,6 +810,12 @@ func (p *ProductService) GetProductItemByUUIDList(ctx *app.Context, uuidList []s
 		return nil, errors.New("failed to get resource list by UUID list")
 	}
 
+	productMap, err := p.GetProductByUUIDList(ctx, productUuids)
+	if err != nil {
+		ctx.Logger.Error("Failed to get product list by UUID list", err)
+		return nil, errors.New("failed to get product list by UUID list")
+	}
+
 	res := make(map[string]*model.ProductItemRes, 0)
 
 	for _, product := range productItemList {
@@ -823,6 +831,11 @@ func (p *ProductService) GetProductItemByUUIDList(ctx *app.Context, uuidList []s
 				}
 			}
 		}
+
+		if product, ok := productMap[product.ProductUuid]; ok {
+			productRes.ProductInfo = product
+		}
+
 		res[product.Uuid] = productRes
 	}
 
