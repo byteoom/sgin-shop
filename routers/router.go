@@ -50,7 +50,9 @@ func InitUserRouter(ctx *app.App) {
 	v1.Use(middleware.SysOpLogMiddleware(&service.SysOpLogService{}))
 	{
 		userController := &controller.UserController{
-			Service: &service.UserService{},
+			Service:           &service.UserService{},
+			TeamMemberService: &service.TeamMemberService{},
+			MenuService:       &service.MenuService{},
 		}
 
 		v1.POST("/user/create", userController.CreateUser)
@@ -70,6 +72,9 @@ func InitUserRouter(ctx *app.App) {
 		v1.POST("/user/team/switch", userController.SwitchTeam)
 		// 获取用户菜单
 		v1.POST("/user/menus", userController.GetUserMenu)
+
+		// 获取用户订单
+		v1.POST("/user/orders", userController.GetUserOrderList)
 
 	}
 
@@ -453,6 +458,8 @@ func InitCartRouter(ctx *app.App) {
 		v1.POST("/cart/add", cartController.CreateCart)
 		v1.POST("/cart/list", cartController.GetCartList)
 		v1.POST("/cart/delete", cartController.DeleteCart)
+		// 更新购物车商品数量
+		v1.POST("/cart/update/count", cartController.UpdateCartItemCount)
 	}
 }
 

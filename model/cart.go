@@ -24,3 +24,10 @@ type ReqCartQueryParam struct {
 	UserID string `json:"user_id"`
 	Pagination
 }
+
+type ReqCartItemCountParam struct {
+	// 购物车UUID
+	Uuid string `json:"uuid"`
+	// 数量
+	Quantity int `json:"quantity"`
+}

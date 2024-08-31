@@ -168,6 +168,14 @@ func (s *OrderService) CreateOrderByCart(ctx *app.Context, req *model.ReqOrderCr
 			return errors.New("failed to create order items")
 		}
 
+		// 删除购物车
+		err = tx.Where("uuid in (?)", req.CartUuids).Delete(&model.Cart{}).Error
+		if err != nil {
+			ctx.Logger.Error("Failed to delete cart", err)
+			tx.Rollback()
+			return errors.New("failed to delete cart")
+		}
+
 		return nil
 
 	})
@@ -182,7 +190,7 @@ func (s *OrderService) CreateOrderByCart(ctx *app.Context, req *model.ReqOrderCr
 // GetOrderByID retrieves an order by its ID
 func (s *OrderService) GetOrderByID(ctx *app.Context, uuidStr string) (*model.Order, error) {
 	order := &model.Order{}
-	err := ctx.DB.Where("uuid = ?", uuidStr).First(order).Error
+	err := ctx.DB.Where("order_no = ?", uuidStr).First(order).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New("order not found")
@@ -334,7 +342,7 @@ func (s *OrderService) GetOrderList(ctx *app.Context, params *model.ReqOrderQuer
 		return nil, errors.New("failed to get order count")
 	}
 
-	err = db.Order("id DESC").Offset(params.GetOffset()).Limit(params.PageSize).Error
+	err = db.Order("id DESC").Offset(params.GetOffset()).Limit(params.PageSize).Find(&orders).Error
 	if err != nil {
 		ctx.Logger.Error("Failed to get order list", err)
 		return nil, errors.New("failed to get order list")

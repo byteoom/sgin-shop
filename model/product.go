@@ -76,6 +76,10 @@ type ProductShow struct {
 	ProductType string `json:"product_type" gorm:"type:varchar(100)"` // 单个产品、变体产品、组合产品
 	// 产品名称
 	Name string `json:"name" gorm:"type:varchar(100)"`
+
+	// 产品别名
+	AliasName string `json:"alias_name" gorm:"type:varchar(100)"` // 产品别名
+
 	// 产品描述
 	Description string `json:"description" gorm:"type:varchar(255)"`
 	// 产品价格

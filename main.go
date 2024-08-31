@@ -37,6 +37,7 @@ func main() {
 	serverApp := app.NewApp()
 	model.MigrateDbTable(serverApp.DB)
 	serverApp.Use(app.RecoveryWithWriter(serverApp.Logger))
+	serverApp.Use(app.Cors())
 
 	routers.InitRouter(serverApp)
 
