@@ -321,3 +321,31 @@ func (p *ProductController) UpdateProductItem(ctx *app.Context) {
 	}
 	ctx.JSONSuccess("Updated product")
 }
+
+// GetProductItemVariantInfo
+// @Summary 获取产品变体信息
+// @Description 获取产品变体信息
+// @Tags 产品
+// @Accept  json
+// @Produce  json
+// @Param param body model.ReqUuidParam true "产品变体UUID"
+// @Success 200 {object} model.ProductVariantsListResponse "产品变体信息"
+// @Router /api/v1/product/variant/info [post]
+func (p *ProductController) GetProductItemVariantInfo(ctx *app.Context) {
+	// 创建参数
+	params := &model.ReqUuidParam{}
+	// 绑定参数
+	if err := ctx.Bind(params); err != nil {
+		ctx.Logger.Error("Failed to bind params", err)
+		ctx.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+	// 获取产品信息
+	info, err := p.ProductService.GetProductVariantInfo(ctx, params.Uuid)
+	if err != nil {
+		ctx.Logger.Error("Failed to get product info", err)
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+	ctx.JSONSuccess(info)
+}

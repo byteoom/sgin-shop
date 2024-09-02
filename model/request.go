@@ -168,7 +168,8 @@ type ReqMenuAPIQueryParam struct {
 
 // 产品查询参数
 type ReqProductQueryParam struct {
-	Name string `json:"name"`
+	Name        string `json:"name"`
+	ProductUuid string `json:"product_uuid"` // 产品uuid
 	Pagination
 }
 

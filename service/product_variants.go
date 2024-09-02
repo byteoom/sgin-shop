@@ -78,3 +78,28 @@ func (s *ProductVariantService) GetProductVariantOptionByProductUUIDList(ctx *ap
 
 	return productVariantOptions, nil
 }
+
+// 根据变体uuid列表 获取变体option列表
+func (s *ProductVariantService) GetProductVariantOptionByVariantUUIDList(ctx *app.Context, variantUuids []string) (map[string][]*model.ProductVariantsOption, error) {
+	productVariantOptions := make(map[string][]*model.ProductVariantsOption)
+	if len(variantUuids) == 0 {
+		return productVariantOptions, nil
+	}
+
+	variantOptions := make([]*model.ProductVariantsOption, 0)
+	err := ctx.DB.Where("product_variants_uuid in (?)", variantUuids).Find(&variantOptions).Error
+	if err != nil {
+		ctx.Logger.Error("Failed to get product variant options by variant uuid list", err)
+		return nil, errors.New("failed to get product variant options by variant uuid list")
+	}
+
+	for _, variantOption := range variantOptions {
+
+		if _, ok := productVariantOptions[variantOption.ProductVariantsUuid]; !ok {
+			productVariantOptions[variantOption.ProductVariantsUuid] = make([]*model.ProductVariantsOption, 0)
+		}
+		productVariantOptions[variantOption.ProductVariantsUuid] = append(productVariantOptions[variantOption.ProductVariantsUuid], variantOption)
+	}
+
+	return productVariantOptions, nil
+}

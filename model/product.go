@@ -109,6 +109,14 @@ type ProductShowItem struct {
 	ProductItems          []*ProductItemRes        `json:"product_items"`
 }
 
+// 产品变体item信息
+type ProductVariantsItem struct {
+	Name        string `json:"name" gorm:"type:varchar(100)"`              // 产品变体名称
+	VariantUuid string `json:"variant_uuid" gorm:"type:varchar(36);index"` // 产品变体uuid
+	Option      string `json:"option" gorm:"type:varchar(100)"`            // 产品变体option
+	OptionUuid  string `json:"option_uuid" gorm:"type:varchar(36);index"`  // 产品变体option uuid
+}
+
 // 产品变体
 type ProductVariants struct {
 	ID          int64  `json:"id" gorm:"primary_key"`
@@ -120,6 +128,11 @@ type ProductVariants struct {
 	Description string `json:"description" gorm:"type:varchar(255)"`
 	CreatedAt   string `gorm:"autoCreateTime" json:"created_at"` // CreatedAt 记录了创建的时间
 	UpdatedAt   string `gorm:"autoUpdateTime" json:"updated_at"` // UpdatedAt 记录了最后更新的时间
+}
+
+type ProductVariantsRes struct {
+	ProductVariants
+	ProductVariantsOptions []*ProductVariantsOption `json:"product_variants_options"` // 产品变体Option列表
 }
 
 // 产品变体Option
@@ -201,8 +214,9 @@ func (a ProductItemByPrice) Less(i, j int) bool { return a[i].Price < a[j].Price
 
 type ProductItemRes struct {
 	ProductItem
-	ImageList   []string    `json:"image_list"`   // 产品图片地址
-	ProductInfo *ProductRes `json:"product_info"` // 产品信息
+	ImageList    []string              `json:"image_list"`    // 产品图片地址
+	ProductInfo  *ProductRes           `json:"product_info"`  // 产品信息
+	VariantsInfo []ProductVariantsItem `json:"variants_info"` // 产品变体信息
 }
 
 // Implementing sort.Interface for []ProductItemRes based on the Price field

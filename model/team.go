@@ -6,6 +6,7 @@ import "time"
 type Team struct {
 	Id   uint   `gorm:"primary_key" json:"id"`            // ID 是团队的主键
 	UUID string `gorm:"type:char(36);unique" json:"uuid"` // UUID 是团队的唯一标识符
+	Icon string `gorm:"type:varchar(255)" json:"icon"`    // Icon 是团队的图标
 	// 拥有者
 	OwnerUuid string    `gorm:"type:char(36);index" json:"owner_uuid"` // 拥有者uuid
 	Name      string    `gorm:"type:varchar(100);unique" json:"name"`  // Name 是团队的名称，它在系统中是唯一的
