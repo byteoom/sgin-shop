@@ -163,14 +163,33 @@ func (p *ProductService) CreateVariants(ctx *app.Context, tx *gorm.DB, variants 
 
 	for _, item := range vals {
 
-		variantsList := make([]string, 0)
+		variantItems := make([]model.ProductVariantsItem, 0)
 		for _, variantItem := range variants {
 			if option, ok := item[variantItem.Name]; ok {
-				variantsList = append(variantsList, fmt.Sprintf("%s:%s", variantItem.Name, option))
+
+				variantItemUuid, ok := mVariants[variantItem.Name]
+				if !ok {
+					return nil, errors.New("variant not found")
+				}
+
+				optionUuid, ok := mVariantsOptions[variantItem.Name][fmt.Sprintf("%v", option)]
+				if !ok {
+					return nil, errors.New("variant option not found")
+				}
+
+				variantItems = append(variantItems, model.ProductVariantsItem{
+					Name:        variantItem.Name,
+					Option:      fmt.Sprintf("%v", option),
+					VariantUuid: variantItemUuid,
+					OptionUuid:  optionUuid,
+				})
+
 			}
 		}
 
-		variantsstr := strings.Join(variantsList, "-")
+		variantItemsByte, _ := json.Marshal(variantItems)
+
+		variantsstr := string(variantItemsByte)
 
 		productItem := model.ProductItem{
 			ProductBase:   product.ProductBase,
@@ -417,6 +436,10 @@ func (p *ProductService) GetProductSkuList(ctx *app.Context, params *model.ReqPr
 
 	var total int64
 
+	if params.ProductUuid != "" {
+		query = query.Where("product_uuid = ?", params.ProductUuid)
+	}
+
 	err = query.Count(&total).Error
 	if err != nil {
 		ctx.Logger.Error("Failed to get product count", err)
@@ -486,6 +509,20 @@ func (p *ProductService) GetProductSkuList(ctx *app.Context, params *model.ReqPr
 				}
 			}
 		}
+
+		if product.Variants != "" {
+			var variants []model.ProductVariantsItem
+			err = json.Unmarshal([]byte(product.Variants), &variants)
+			if err == nil {
+				variantsStr := make([]string, 0)
+				for _, variant := range variants {
+					variantsStr = append(variantsStr, variant.Name+":"+variant.Option)
+				}
+				productRes.Variants = strings.Join(variantsStr, ",")
+				productRes.VariantsInfo = variants
+			}
+		}
+
 		res = append(res, productRes)
 	}
 
@@ -1069,4 +1106,42 @@ func (p *ProductService) UpdateProductSku(ctx *app.Context, params *model.ReqPro
 	}
 
 	return nil
+}
+
+// GetProductVariantInfo
+func (p *ProductService) GetProductVariantInfo(ctx *app.Context, uuid string) (r []*model.ProductVariantsRes, err error) {
+
+	productVariants := make([]*model.ProductVariants, 0)
+	err = ctx.DB.Where("product_uuid = ?", uuid).Find(&productVariants).Error
+	if err != nil {
+		ctx.Logger.Error("Failed to get product variants by product uuid", err)
+		return nil, errors.New("failed to get product variants by product uuid")
+	}
+
+	variantsUuids := make([]string, 0)
+	for _, variant := range productVariants {
+		variantsUuids = append(variantsUuids, variant.Uuid)
+	}
+
+	productVariantsOptionsMap, err := NewProductVariantService().GetProductVariantOptionByVariantUUIDList(ctx, variantsUuids)
+	if err != nil {
+		ctx.Logger.Error("Failed to get product variants options by variant uuid list", err)
+		return nil, errors.New("failed to get product variants options by variant uuid list")
+	}
+
+	res := make([]*model.ProductVariantsRes, 0)
+
+	for _, variant := range productVariants {
+		variantRes := &model.ProductVariantsRes{
+			ProductVariants: *variant,
+		}
+
+		if options, ok := productVariantsOptionsMap[variant.Uuid]; ok {
+			variantRes.ProductVariantsOptions = options
+		}
+
+		res = append(res, variantRes)
+	}
+
+	return res, nil
 }

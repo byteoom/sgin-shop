@@ -301,3 +301,9 @@ type PaymentMethodListResponse struct {
 	BaseResponse
 	Data []PaymentMethod `json:"data"`
 }
+
+// ProductVariantsRes list
+type ProductVariantsListResponse struct {
+	BaseResponse
+	Data []ProductVariantsRes `json:"data"`
+}

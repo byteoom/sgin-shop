@@ -369,6 +369,9 @@ func InitProductRouter(ctx *app.App) {
 		v1.POST("/product/update", productController.UpdateProduct)
 		// 更新产品SKU
 		v1.POST("/product/item/update", productController.UpdateProductItem)
+
+		// 获取产品变体信息
+		v1.POST("/product/variant/info", productController.GetProductItemVariantInfo)
 	}
 }
 
