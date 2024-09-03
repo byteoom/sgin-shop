@@ -307,3 +307,15 @@ type ProductVariantsListResponse struct {
 	BaseResponse
 	Data []ProductVariantsRes `json:"data"`
 }
+
+// PageInfoResponse
+type PageInfoResponse struct {
+	BaseResponse
+	Data Page `json:"data"`
+}
+
+// PageQueryResponse
+type PageQueryResponse struct {
+	BasePageResponse
+	Data []Page `json:"data"`
+}
