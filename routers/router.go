@@ -42,6 +42,7 @@ func InitRouter(ctx *app.App) {
 	InitConfigurationRouter(ctx)
 	InitUserAddressRouter(ctx)
 	InitCurrencyRouter(ctx)
+	InitPageRouter(ctx)
 }
 
 func InitUserRouter(ctx *app.App) {
@@ -528,6 +529,21 @@ func InitCurrencyRouter(ctx *app.App) {
 		v1.POST("/currency/delete", currencyController.DeleteCurrency)
 		v1.POST("/currency/list", currencyController.GetCurrencyList)
 		v1.POST("/currency/all", currencyController.GetAllCurrency)
+	}
+}
+
+func InitPageRouter(ctx *app.App) {
+	v1 := ctx.Group(ctx.Config.ApiPrefix + "/v1")
+	v1.Use(middleware.LoginCheck())
+	{
+		pageController := &controller.PageController{
+			PageService: &service.PageService{},
+		}
+		v1.POST("/page/create", pageController.CreatePage)
+		v1.POST("/page/update", pageController.UpdatePage)
+		v1.POST("/page/delete", pageController.DeletePage)
+		v1.POST("/page/info", pageController.GetPageInfo)
+		v1.POST("/page/list", pageController.GetPageList)
 	}
 }
 

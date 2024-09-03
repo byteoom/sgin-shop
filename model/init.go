@@ -44,6 +44,7 @@ func MigrateDbTable(db *gorm.DB) {
 		&Configuration{},
 		&UserAddress{},
 		&Currency{},
+		&Page{},
 	)
 
 	// 创建默认用户
