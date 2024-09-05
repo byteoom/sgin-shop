@@ -319,3 +319,16 @@ type PageQueryResponse struct {
 	BasePageResponse
 	Data []Page `json:"data"`
 }
+
+// AlipayOrderDetailResponse
+type AlipayOrderDetailResponse struct {
+	BaseResponse
+	Data TradePay `json:"data"`
+}
+
+// WechatOrderDetailResponse
+type WechatOrderDetailResponse struct {
+	BaseResponse
+	// TODO 微信支付订单详情
+	Data string `json:"data"`
+}

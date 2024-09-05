@@ -43,6 +43,8 @@ func InitRouter(ctx *app.App) {
 	InitUserAddressRouter(ctx)
 	InitCurrencyRouter(ctx)
 	InitPageRouter(ctx)
+	InitAlipayRouter(ctx)
+	InitWechatPayRouter(ctx)
 }
 
 func InitUserRouter(ctx *app.App) {
@@ -426,6 +428,18 @@ func InitPaymentMethodRouter(ctx *app.App) {
 		// 创建paypal 支付订单
 		v1.POST("/payment_method/paypal/create", paymentMethodController.CreatePaypalPayment)
 
+		// 设置支付宝支付配置
+		v1.POST("/payment_method/alipay/config", paymentMethodController.SetAlipayConfig)
+
+		// 设置微信支付配置
+		v1.POST("/payment_method/wechat/config", paymentMethodController.SetWechatConfig)
+
+		// 创建支付宝支付订单
+		v1.POST("/payment_method/alipay/create", paymentMethodController.CreateAlipayPayment)
+
+		// 创建微信支付订单
+		v1.POST("/payment_method/wechat/create", paymentMethodController.CreateWechatPayment)
+
 		// 创建paypal 沙盒支付订单
 		//v1.POST("/payment_method/paypal/sandbox/create_test", paymentMethodController.CreatePaypalPaymentSandboxTest)
 	}
@@ -449,6 +463,31 @@ func InitPaypalRouter(ctx *app.App) {
 
 		// 获取paypal client id
 		v1.POST("/payment_method/paypal/client_id", paymentMethodController.GetPaypalClientID)
+	}
+}
+
+func InitAlipayRouter(ctx *app.App) {
+	v1 := ctx.Group(ctx.Config.ApiPrefix + "/v1")
+	alipayController := &controller.AlipayController{
+		PaymentMethodService: &service.PaymentMethodService{},
+	}
+
+	{
+
+		v1.Any("/alipay/return", alipayController.Return)
+		v1.Any("/alipay/notify", alipayController.Notify)
+	}
+
+}
+
+func InitWechatPayRouter(ctx *app.App) {
+	v1 := ctx.Group(ctx.Config.ApiPrefix + "/v1")
+	wechatPayController := &controller.WechatPayController{
+		PaymentMethodService: &service.PaymentMethodService{},
+	}
+
+	{
+		v1.Any("/wechat_pay/return", wechatPayController.Return)
 	}
 }
 
